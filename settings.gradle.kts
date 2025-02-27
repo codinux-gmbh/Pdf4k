@@ -27,3 +27,5 @@ rootProject.name = "Pdf4kProject"
 
 
 include("Pdf4k")
+
+include("PdfTestDataGenerator")
