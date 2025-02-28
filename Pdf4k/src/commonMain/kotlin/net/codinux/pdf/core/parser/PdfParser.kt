@@ -16,13 +16,11 @@ import net.codinux.pdf.core.syntax.Keywords
 
 open class PdfParser(
     pdfBytes: ByteArray,
-    protected val objectsPerTick: Int = Int.MAX_VALUE,
     protected val throwOnInvalidObject: Boolean = false,
     capNumbers: Boolean = false
 ) : PdfObjectParser(ByteStream(pdfBytes), PdfContext(), capNumbers) {
 
     protected var alreadyParsed = false
-    protected var parsedObjects = 0
 
 
     open fun parseDocument(): PdfContext {
