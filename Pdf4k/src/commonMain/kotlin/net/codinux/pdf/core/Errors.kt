@@ -1,13 +1,27 @@
 package net.codinux.pdf.core
 
 import net.codinux.pdf.core.parser.ByteStream
+import kotlin.reflect.KClass
 
+
+open class Pdf4kError(message: String) : IllegalStateException(message)
+
+open class UnexpectedObjectTypeError(expected: List<KClass<*>>, actual: KClass<*>?)
+    : Pdf4kError("Expected instance of ${expected.joinToString()} but got ${actual ?: "null"}")
+
+open class UnsupportedEncodingError(encoding: String) : Pdf4kError("$encoding stream encoding not supported")
+
+open class ReparseError(className: String, methodName: String)
+    : Pdf4kError("Cannot call ${className}.$methodName more than once")
+
+
+/*        Parser Errors           */
 
 open class NumberParsingError(val position: ByteStream.Position, val number: String)
-    : IllegalStateException("Failed to parse number at $position: $number")
+    : Pdf4kError("Failed to parse number at $position: $number")
 
 open class PdfParsingError(val position: ByteStream.Position, details: String)
-    : IllegalStateException("Failed to parse PDF document at $position: $details")
+    : Pdf4kError("Failed to parse PDF document at $position: $details")
 
 
 open class NextByteAssertionError(position: ByteStream.Position, val expectedByte: Byte, val actualByte: Byte)

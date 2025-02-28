@@ -36,6 +36,27 @@ open class PdfName(val name: String): PdfObject {
         val Producer = PdfName("Producer")
         val CreationDate = PdfName("CreationDate")
         val ModDate = PdfName("ModDate")
+
+        val Filter = PdfName("Filter")
+        val Root = PdfName("Root")
+        val Encrypt = PdfName("Encrypt")
+        val Info = PdfName("Info")
+        val ID = PdfName("ID")
+    }
+
+
+    // so that equality checks in Map<>s work
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PdfName) return false
+
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
     }
 
     override fun toString() = name

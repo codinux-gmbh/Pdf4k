@@ -2,6 +2,7 @@ package net.codinux.pdf.core.parser
 
 import net.codinux.pdf.core.MissingKeywordError
 import net.codinux.pdf.core.MissingPdfHeaderError
+import net.codinux.pdf.core.ReparseError
 import net.codinux.pdf.core.StalledParserError
 import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.document.PdfHeader
@@ -25,7 +26,7 @@ open class PdfParser(
 
     open fun parseDocument(): PdfContext {
         if (alreadyParsed) {
-            throw IllegalStateException("Document already parsed")
+            throw ReparseError("PdfParser", "parseDocument")
         }
         alreadyParsed = true
 
@@ -97,13 +98,18 @@ open class PdfParser(
         skipWhitespaceAndComments()
         val pdfObject = parseObject()
 
+        skipWhitespaceAndComments()
+
         // TODO: Log a warning if this fails...
         matchKeyword(Keywords.Endobj)
 
-        if (pdfObject is PdfRawStream && pdfObject.dict.get("Type") == PdfName.getOrCreate(namePool, "ObjStm")) {
+        val rawStreamType = if (pdfObject is PdfRawStream) pdfObject.dict.getAs<PdfName>(PdfName.Type)?.name else null
+        if (rawStreamType == "ObjStm") {
             // TODO
-        } else if (pdfObject is PdfRawStream && pdfObject.dict.get("Type") == PdfName.getOrCreate(namePool, "XRef")) {
-            // TODO
+        } else if (rawStreamType == "XRef") {
+            val (trailerInfo, xrefStream) = PdfXRefStreamParser(pdfObject as PdfRawStream).parseTrailerInfoAndXrefStream()
+            context.trailerInfo = trailerInfo
+//            context.crossReferenceSection = PdfCrossRefSection(xrefStream)
         } else {
             context.assign(ref, pdfObject)
         }
@@ -185,10 +191,10 @@ open class PdfParser(
 
         val dict = parseDict()
         context.trailerInfo = TrailerInfo(
-            root = dict.get("Root") ?: context.trailerInfo?.root,
-            encrypt = dict.get("Encrypt") ?: context.trailerInfo?.encrypt,
-            info = dict.get("Info") ?: context.trailerInfo?.info,
-            id = dict.get("ID") ?: context.trailerInfo?.id,
+            root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
+            encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt,
+            info = dict.get(PdfName.Info) ?: context.trailerInfo?.info,
+            id = dict.get(PdfName.ID) ?: context.trailerInfo?.id,
         )
     }
 

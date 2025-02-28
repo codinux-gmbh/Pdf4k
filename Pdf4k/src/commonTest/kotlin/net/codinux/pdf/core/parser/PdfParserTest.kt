@@ -34,6 +34,31 @@ class PdfParserTest {
 
 
     @Test
+    fun parseTrailerDictionary_Pdf_1_7() {
+        val underTest = PdfParser(PdfTestData.Empty)
+
+        val result = underTest.parseDocument()
+
+        assertThat(result.trailerInfo).isNotNull()
+        // this PDF's trailer dictionary contains only /Root and /ID
+        assertThat(result.trailerInfo!!.root is PdfRef).isTrue()
+        assertThat((result.trailerInfo!!.root as PdfRef).objectNumber).isEqualTo(1)
+
+        assertThat(result.trailerInfo!!.info).isNull()
+        assertThat(result.trailerInfo!!.encrypt).isNull()
+
+        assertThat(result.trailerInfo!!.id is PdfArray).isTrue()
+        val idItems = (result.trailerInfo!!.id as PdfArray).items
+        assertThat(idItems).hasSize(2)
+        val creationHash = idItems[0]
+        val lastModifiedHash = idItems[1]
+        assertThat(creationHash is PdfHexString).isTrue()
+        assertThat((creationHash as PdfHexString).value).isEqualTo("66064282FD5B59CB6DAFD284A9EB3BAC")
+        assertThat(lastModifiedHash is PdfHexString).isTrue()
+        assertThat((lastModifiedHash as PdfHexString).value).isEqualTo("66064282FD5B59CB6DAFD284A9EB3BAC")
+    }
+
+    @Test
     fun parseTrailerDictionary_Pdf_1_4() {
         val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
 
