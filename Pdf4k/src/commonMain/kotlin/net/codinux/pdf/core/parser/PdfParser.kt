@@ -151,22 +151,27 @@ open class PdfParser(
             skipWhitespaceAndComments()
 
             val byte = bytes.peek()
+            // an Xref table entry in format <object byte address (= firstInt)> <generation number (= secondInt)> <n or f>
             if (byte == CharCodes.n || byte == CharCodes.f) {
                 val ref = PdfRef.getOrCreate(referencePool, objectNumber, secondInt)
                 if (bytes.next() == CharCodes.n) {
-//                    xref.addEntry(ref, firstInt) // TODO
+                    xref.addEntryThatIsInUse(ref, firstInt)
                 } else {
                     // this.context.delete(ref)
-//                    xref.addDeletedEntry(ref, firstInt) // TODO
+                    xref.addDeletedEntry(ref, firstInt)
                 }
 
                 objectNumber += 1
-            } else {
+            }
+            // subsection indicator in format <first object's object number (= firstInt)> <count objects with consecutive numbers in this section (= secondInt)>
+            else {
                 objectNumber = firstInt
             }
 
             skipWhitespaceAndComments()
         }
+
+        context.crossReferenceSection = xref
 
         return xref
     }

@@ -1,10 +1,12 @@
 package net.codinux.pdf.core.document
 
+import net.codinux.pdf.core.objects.PdfCrossRefSection
 import net.codinux.pdf.core.objects.PdfObject
 import net.codinux.pdf.core.objects.PdfRef
 
 open class PdfContext(
     var header: PdfHeader? = null,
+    var crossReferenceSection: PdfCrossRefSection? = null,
     var trailerInfo: TrailerInfo? = null,
 ) {
 
