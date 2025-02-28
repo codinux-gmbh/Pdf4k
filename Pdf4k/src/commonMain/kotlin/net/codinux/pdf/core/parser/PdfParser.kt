@@ -199,7 +199,9 @@ open class PdfParser(
         skipWhitespace()
         matchKeyword(Keywords.EOF)
         skipWhitespaceAndComments()
-        matchKeyword(Keywords.EOF)
+        if (bytes.hasNext()) { // don't know why pdf-lib tries to find "%%EOF" two times, usually there's only one "%%EOF" at end of a PDF file
+            matchKeyword(Keywords.EOF)
+        }
 
         return PdfTrailer(offset)
     }

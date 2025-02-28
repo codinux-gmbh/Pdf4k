@@ -116,7 +116,7 @@ open class BaseParser(
     }
 
     protected open fun skipComment(): Boolean {
-        if (bytes.peek() != CharCodes.Percent) {
+        if (bytes.done() || bytes.peek() != CharCodes.Percent) {
             return false
         }
 
