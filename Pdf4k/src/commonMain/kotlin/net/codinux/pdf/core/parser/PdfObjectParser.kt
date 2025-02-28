@@ -205,9 +205,9 @@ open class PdfObjectParser(
             if (matchKeyword(Keywords.Endstream) == false) {
                 bytes.moveTo(start)
                 end = findEndOfStreamFallback(startPos)
-            } else {
-                end = findEndOfStreamFallback(startPos)
             }
+        } else {
+            end = findEndOfStreamFallback(startPos)
         }
 
         val contents = bytes.slice(start, end)
