@@ -24,9 +24,9 @@ object CharCodes {
 
     val Percent = 37.toByte()
 
-    val LeftParen = 40.toByte()
+    val LeftParenthesis = 40.toByte()
 
-    val RightParen = 41.toByte()
+    val RightParenthesis = 41.toByte()
 
     val Plus = 43.toByte()
 

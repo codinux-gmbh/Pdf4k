@@ -20,7 +20,7 @@ class PdfParserTest {
     }
 
     @Test
-    fun parseHeader_Pdf_1_3() {
+    fun parseHeader_Pdf_1_4() {
         val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
 
         val result = underTest.parseDocument()

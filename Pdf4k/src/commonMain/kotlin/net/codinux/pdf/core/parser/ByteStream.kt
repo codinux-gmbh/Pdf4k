@@ -1,5 +1,6 @@
 package net.codinux.pdf.core.parser
 
+import net.codinux.pdf.core.NextByteAssertionError
 import net.codinux.pdf.core.syntax.CharCodes
 
 open class ByteStream(protected val bytes: ByteArray) {
@@ -36,7 +37,7 @@ open class ByteStream(protected val bytes: ByteArray) {
 
     open fun assertNext(expected: Byte): Byte {
         if (this.peek() != expected) {
-            throw IllegalStateException()
+            throw NextByteAssertionError(this.position(), expected, this.peek())
         }
 
         return this.next()
