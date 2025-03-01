@@ -1,8 +1,6 @@
 package net.codinux.pdf.core.objects
 
-open class PdfCrossRefSection : PdfObject {
-
-    protected val subsections = mutableListOf<MutableList<PdfCrossRefEntry>>()
+open class PdfCrossRefSection(protected val subsections: MutableList<MutableList<PdfCrossRefEntry>> = mutableListOf()) : PdfObject {
 
     protected var chunkIndex = -1
 

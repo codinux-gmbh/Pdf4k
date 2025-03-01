@@ -42,6 +42,7 @@ open class PdfName(val name: String): PdfObject {
         val Encrypt = PdfName("Encrypt")
         val Info = PdfName("Info")
         val ID = PdfName("ID")
+        val Size = PdfName("Size")
     }
 
 

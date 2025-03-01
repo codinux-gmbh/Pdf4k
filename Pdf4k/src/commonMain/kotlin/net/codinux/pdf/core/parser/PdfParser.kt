@@ -107,9 +107,9 @@ open class PdfParser(
         if (rawStreamType == "ObjStm") {
             // TODO
         } else if (rawStreamType == "XRef") {
-            val (trailerInfo, xrefStream) = PdfXRefStreamParser(pdfObject as PdfRawStream).parseTrailerInfoAndXrefStream()
+            val (trailerInfo, xrefStream) = PdfXRefStreamParser(pdfObject as PdfRawStream).parseTrailerInfoAndXrefStream(referencePool)
             context.trailerInfo = trailerInfo
-//            context.crossReferenceSection = PdfCrossRefSection(xrefStream)
+            context.crossReferenceSection = xrefStream
         } else {
             context.assign(ref, pdfObject)
         }

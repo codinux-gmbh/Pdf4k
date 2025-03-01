@@ -1,9 +1,17 @@
 package net.codinux.pdf.core.parser
 
 import net.codinux.pdf.core.NextByteAssertionError
+import net.codinux.pdf.core.objects.PdfRawStream
+import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
 
 open class ByteStream(protected val bytes: ByteArray) {
+
+    companion object {
+        fun fromPdfRawStream(rawStream: PdfRawStream, decoder: StreamDecoder = StreamDecoder()): ByteStream =
+            ByteStream(decoder.decodePdfRawStream(rawStream).decode())
+    }
+
 
     protected val length = bytes.size
 

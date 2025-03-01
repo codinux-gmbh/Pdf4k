@@ -11,7 +11,7 @@ open class StreamDecoder {
     }
 
 
-    open fun decodePDFRawStream(rawStream: PdfRawStream): StreamType {
+    open fun decodePdfRawStream(rawStream: PdfRawStream): StreamType {
         var stream: StreamType = Stream(rawStream.contents)
 
         val filter = rawStream.dict.get(PdfName.Filter)
