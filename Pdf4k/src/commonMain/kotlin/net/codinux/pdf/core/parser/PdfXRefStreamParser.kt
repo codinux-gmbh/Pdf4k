@@ -63,18 +63,24 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
         return subsections.indices.map { index ->
             val (firstObjectNumber, length) = subsections[index]
 
-            (0..<length).map { objectIndex ->
-                var type = getValueOfByteWidth(bytes, typeFieldWidth)
-                val offset = getValueOfByteWidth(bytes, offsetFieldWidth)
-                val generationNumber = getValueOfByteWidth(bytes, genFieldWidth)
-
-                // When the `type` field is absent, it defaults to 1
-                if (typeFieldWidth == 0) {
-                    type = 1
+            (0..<length).mapNotNull { objectIndex ->
+                val type = if (typeFieldWidth == 0) {
+                    1 // When the `type` field width is absent, it defaults to 1
+                } else {
+                    getValueOfByteWidth(bytes, typeFieldWidth)
                 }
 
-                val objectNumber = firstObjectNumber + objectIndex
-                PdfCrossRefEntry(PdfRef.getOrCreate(referencePool, objectNumber, generationNumber), offset, type == 0, type == 2)
+                val offset = getValueOfByteWidth(bytes, offsetFieldWidth)
+                val generationNumber = getValueOfByteWidth(bytes, genFieldWidth)
+                val isDeleted = type == 0
+
+                if (isDeleted) {
+                    null // skip deleted entries
+                } else {
+                    val objectNumber = firstObjectNumber + objectIndex
+                    PdfCrossRefEntry(PdfRef.getOrCreate(referencePool, objectNumber, generationNumber), offset, isDeleted, type == 2)
+                }
+
             }.toMutableList()
         }
     }
