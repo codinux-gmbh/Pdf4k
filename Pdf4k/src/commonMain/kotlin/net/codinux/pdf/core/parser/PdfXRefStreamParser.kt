@@ -69,14 +69,10 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
             val (firstObjectNumber, length) = subsections[index]
 
             (0..<length).mapNotNull { objectIndex ->
-                val type = if (typeFieldWidth == 0) {
-                    1 // When the `type` field width is absent, it defaults to 1
-                } else {
-                    getValueOfByteWidth(bytes, typeFieldWidth)
-                }
-
-                val offset = getValueOfByteWidth(bytes, offsetFieldWidth)
-                val generationNumber = getValueOfByteWidth(bytes, genFieldWidth)
+                // see Table 18 (in 7.5.8.3 Cross-reference stream data) on p. 67-8 of PDF 1.7 reference
+                val type = getValueOfByteWidth(bytes, typeFieldWidth, 1) // When the `type` field width is absent, it defaults to 1
+                val offset = getValueOfByteWidth(bytes, offsetFieldWidth, 0)
+                val generationNumber = getValueOfByteWidth(bytes, genFieldWidth, 0)
                 val isDeleted = type == 0
 
                 if (isDeleted) {
@@ -90,13 +86,16 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
         }
     }
 
-    protected open fun getValueOfByteWidth(bytes: ByteStream, countBytes: Int): Int {
+    protected open fun getValueOfByteWidth(bytes: ByteStream, countBytes: Int, defaultValue: Int): Int =
+        if (countBytes == 0) {
+            defaultValue
+        } else {
         var value = 0
         (0..<countBytes).forEach {
             value = (value shl 8) or bytes.next().toInt()
         }
 
-        return value
+        value
     }
 
 }
