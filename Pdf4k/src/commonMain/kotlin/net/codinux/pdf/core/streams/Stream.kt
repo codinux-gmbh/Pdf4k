@@ -1,7 +1,5 @@
 package net.codinux.pdf.core.streams
 
-import net.codinux.pdf.core.streams.StreamType.Companion.OutOfRangeByte
-
 @OptIn(ExperimentalUnsignedTypes::class)
 open class Stream(
     protected val bytes: UByteArray,
@@ -17,7 +15,7 @@ open class Stream(
     override val isEmpty: Boolean = length == 0
 
     override fun getByte(): UByte? =
-        if (pos >= end) OutOfRangeByte
+        if (pos >= end) null
         else bytes[pos++]
 
 //    override fun getUInt16(): UShort {

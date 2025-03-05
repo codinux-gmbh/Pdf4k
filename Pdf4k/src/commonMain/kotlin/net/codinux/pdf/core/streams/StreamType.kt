@@ -3,11 +3,6 @@ package net.codinux.pdf.core.streams
 @OptIn(ExperimentalUnsignedTypes::class)
 interface StreamType {
 
-    companion object {
-        val OutOfRangeByte: UByte? = null
-    }
-
-
     val isEmpty: Boolean
 
     fun getByte(): UByte?

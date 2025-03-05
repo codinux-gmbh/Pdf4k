@@ -2,8 +2,6 @@
 
 package net.codinux.pdf.core.streams
 
-import net.codinux.pdf.core.streams.StreamType.Companion.OutOfRangeByte
-
 /*
  * Copyright 2012 Mozilla Foundation
  *
@@ -53,7 +51,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
     override fun getByte(): UByte? {
         while (bufferLength < pos) {
             if (eof) {
-                return OutOfRangeByte
+                return null
             }
 
             readBlock()

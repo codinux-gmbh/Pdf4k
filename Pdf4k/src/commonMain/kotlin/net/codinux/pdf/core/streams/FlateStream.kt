@@ -123,7 +123,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
     init {
         val cmf = stream.getByte()
         val flg = stream.getByte()
-        if (cmf == OutOfRangeByte || flg == OutOfRangeByte) {
+        if (cmf == null || flg == null) {
             throw IllegalArgumentException("Invalid header in flate stream: $cmf, $flg")
         }
         if ((cmf and 0x0F.toUByte()) != 0x08.toUByte()) {
@@ -153,27 +153,27 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         if (hdr == 0) {
             // Uncompressed block
             var byte = str.getByte()
-            if (byte == OutOfRangeByte) {
+            if (byte == null) {
                 throw Error("Bad block header in flate stream")
             }
 
             var blockLen = byte.toInt()
-            if (str.getByte().also { byte = it } == OutOfRangeByte) {
+            if (str.getByte().also { byte = it } == null) {
                 throw Error("Bad block header in flate stream")
             }
 
-            blockLen = blockLen or (byte.toInt() shl 8)
+            blockLen = blockLen or (byte!!.toInt() shl 8)
 
-            if (str.getByte().also { byte = it } == OutOfRangeByte) {
+            if (str.getByte().also { byte = it } == null) {
                 throw Error("Bad block header in flate stream")
             }
 
-            var check = byte.toInt()
-            if (str.getByte().also { byte = it } == OutOfRangeByte) {
+            var check = byte!!.toInt()
+            if (str.getByte().also { byte = it } == null) {
                 throw Error("Bad block header in flate stream")
             }
 
-            check = check or (byte.toInt() shl 8)
+            check = check or (byte!!.toInt() shl 8)
 
             if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
                 throw Error("Bad uncompressed block length in flate stream")
@@ -188,14 +188,16 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             bufferLength = end
 
             if (blockLen == 0) {
-                if (str.peekByte() == OutOfRangeByte) eof = true
+                if (str.peekByte() == null) {
+                    eof = true
+                }
             } else {
                 for (n in bufferLength until end) {
-                    if (str.getByte().also { byte = it } == OutOfRangeByte) {
+                    if (str.getByte().also { byte = it } == null) {
                         eof = true
                         break
                     }
-                    buffer[n] = byte.toByte()
+                    buffer[n] = byte!!.toUByte()
                 }
             }
             return
@@ -307,7 +309,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
 
         while (codeSize < numBits) {
             val byte = stream.getByte()
-            if (byte == OutOfRangeByte) {
+            if (byte == null) {
                 throw IllegalStateException("Bad encoding in flate stream")
             }
 
@@ -332,7 +334,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
 
         while (codeSize < maxLen) {
             val b = str.getByte()
-            if (b == OutOfRangeByte) {
+            if (b == null) {
                 // Premature end of stream. Code might still be valid.
                 break
             }
