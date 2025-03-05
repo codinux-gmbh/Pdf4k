@@ -4,9 +4,11 @@ class PdfArray(val items: List<PdfObject>) : PdfObject {
 
     val size = items.size
 
-    fun <T> lookup(index: Int): T? =
-        if (index in items.indices) items[index] as? T
+    operator fun get(index: Int): PdfObject? =
+        if (index in items.indices) items[index]
         else null
+
+    fun <T : PdfObject> getAs(index: Int): T? = get(index) as? T
 
     override fun toString() = items.joinToString()
 }

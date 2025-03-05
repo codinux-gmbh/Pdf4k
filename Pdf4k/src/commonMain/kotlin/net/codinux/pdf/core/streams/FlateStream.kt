@@ -1,8 +1,6 @@
 package net.codinux.pdf.core.streams
 
 import net.codinux.pdf.core.extensions.shl
-import net.codinux.pdf.core.streams.StreamType.Companion.OutOfRangeByte
-import kotlin.experimental.and
 
 /*
  * Copyright 1996-2003 Glyph & Cog, LLC

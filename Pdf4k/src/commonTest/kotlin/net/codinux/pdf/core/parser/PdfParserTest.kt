@@ -101,4 +101,20 @@ class PdfParserTest {
         assertThat(singleSection[2].offset).isEqualTo(78)
     }
 
+    @Test
+    fun parseCrossRefStream_Pdf_1_7() {
+        val underTest = PdfParser(PdfTestData.Empty)
+
+        val result = underTest.parseDocument()
+
+        assertThat(result.crossReferenceSection).isNotNull()
+        val sections = result.crossReferenceSection!!.getSections()
+        assertThat(sections).hasSize(1)
+        val singleSection = sections[0]
+        assertThat(singleSection).hasSize(3)
+        assertThat(singleSection[0].offset).isEqualTo(15)
+        assertThat(singleSection[1].offset).isEqualTo(3)
+        assertThat(singleSection[2].offset).isEqualTo(78)
+    }
+
 }
