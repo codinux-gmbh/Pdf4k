@@ -96,7 +96,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
             readBlock()
         }
 
-        return buffer.sliceArray(IntRange(0, bufferLength))
+        return buffer.sliceArray(IntRange(0, bufferLength - 1))
     }
 
 
