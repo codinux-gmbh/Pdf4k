@@ -57,7 +57,7 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
     }
 
     protected open fun parseEntries(subsections: List<PdfCrossReferenceSubsection>, byteWidths: MutableList<Int>, referencePool: MutableMap<String, PdfRef>): List<MutableList<PdfCrossRefEntry>> {
-        val bytes = ByteStream.fromPdfRawStream(rawStream)
+        val bytes = ByteStream.fromPdfRawStream(rawStream, decoder)
         val (typeFieldWidth, offsetFieldWidth, genFieldWidth) = byteWidths
 
         return subsections.indices.map { index ->
