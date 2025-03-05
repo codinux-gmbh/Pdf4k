@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package net.codinux.pdf.core.streams
 
 import net.codinux.pdf.core.streams.StreamType.Companion.OutOfRangeByte
@@ -21,7 +23,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
         // we share a single empty buffer. This is (a) space-efficient and (b) avoids
         // having special cases that would be required if we used |null| for an empty
         // buffer.
-        val emptyBuffer = ByteArray(0)
+        val emptyBuffer = UByteArray(0)
     }
 
 
@@ -48,7 +50,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
             return bufferLength == 0
         }
 
-    override fun getByte(): Byte {
+    override fun getByte(): UByte? {
         while (bufferLength < pos) {
             if (eof) {
                 return OutOfRangeByte
@@ -60,7 +62,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
         return buffer[pos++]
     }
 
-    override fun getBytes(length: Int): ByteArray {
+    override fun getBytes(length: Int): UByteArray {
         var end = -1
         val pos = this.pos
 
@@ -87,11 +89,11 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
         return buffer.sliceArray(IntRange(pos, end))
     }
 
-    override fun peekByte(): Byte = getByte().also {
+    override fun peekByte(): UByte? = getByte().also {
         pos--
     }
 
-    override fun decode(): ByteArray {
+    override fun decode(): UByteArray {
         while (eof == false) {
             readBlock()
         }
@@ -100,7 +102,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
     }
 
 
-    protected open fun ensureBuffer(requested: Int): ByteArray {
+    protected open fun ensureBuffer(requested: Int): UByteArray {
         if (requested <= buffer.size) {
             return buffer
         }

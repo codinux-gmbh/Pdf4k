@@ -2,8 +2,9 @@ package net.codinux.pdf.core.streams
 
 import net.codinux.pdf.core.streams.StreamType.Companion.OutOfRangeByte
 
+@OptIn(ExperimentalUnsignedTypes::class)
 open class Stream(
-    protected val bytes: ByteArray,
+    protected val bytes: UByteArray,
     protected val start: Int = 0,
     protected val end: Int = bytes.size
 ) : StreamType {
@@ -15,7 +16,7 @@ open class Stream(
 
     override val isEmpty: Boolean = length == 0
 
-    override fun getByte(): Byte =
+    override fun getByte(): UByte? =
         if (pos >= end) OutOfRangeByte
         else bytes[pos++]
 
@@ -33,7 +34,7 @@ open class Stream(
 //    override fun getInt32(): Int =
 //        getByte().shl(24) + getByte().shl(16) + getByte().shl(8) + getByte()
 
-    override fun getBytes(length: Int /*, forceClamped: Boolean?*/): ByteArray =
+    override fun getBytes(length: Int /*, forceClamped: Boolean?*/): UByteArray =
         if (length <= 0) {
             bytes.sliceArray(IntRange(pos, end))
         } else {
@@ -47,7 +48,7 @@ open class Stream(
             bytes.sliceArray(IntRange(pos, end))
         }
 
-    override fun peekByte(): Byte = getByte().also {
+    override fun peekByte(): UByte? = getByte().also {
         this.pos--
     }
 
@@ -63,6 +64,6 @@ open class Stream(
 //    override fun makeSubStream(start: Int, length: Int): StreamType {
 //    }
 
-    override fun decode(): ByteArray = bytes
+    override fun decode(): UByteArray = bytes
 
 }

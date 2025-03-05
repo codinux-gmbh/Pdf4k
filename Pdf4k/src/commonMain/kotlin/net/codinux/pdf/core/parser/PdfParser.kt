@@ -15,8 +15,9 @@ import net.codinux.pdf.core.objects.PdfRef
 import net.codinux.pdf.core.syntax.CharCodes
 import net.codinux.pdf.core.syntax.Keywords
 
+@OptIn(ExperimentalUnsignedTypes::class)
 open class PdfParser(
-    pdfBytes: ByteArray,
+    pdfBytes: UByteArray,
     protected val throwOnInvalidObject: Boolean = false,
     capNumbers: Boolean = false
 ) : PdfObjectParser(ByteStream(pdfBytes), PdfContext(), capNumbers) {

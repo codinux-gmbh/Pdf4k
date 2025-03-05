@@ -4,6 +4,7 @@ import net.codinux.log.logger
 import net.codinux.pdf.core.NumberParsingError
 import net.codinux.pdf.core.syntax.CharCodes
 
+@OptIn(ExperimentalUnsignedTypes::class)
 open class BaseParser(
     protected val bytes: ByteStream,
     protected val capNumbers: Boolean = false
@@ -95,7 +96,7 @@ open class BaseParser(
         return number
     }
 
-    protected open fun matchKeyword(keyword: ByteArray): Boolean {
+    protected open fun matchKeyword(keyword: UByteArray): Boolean {
         val initialOffset = bytes.offset()
 
         return keyword.all { keywordByte ->
@@ -141,18 +142,18 @@ open class BaseParser(
     }
 
 
-    protected open fun isDigit(byte: Byte): Boolean = charFromCode(byte).isDigit()
+    protected open fun isDigit(byte: UByte): Boolean = charFromCode(byte).isDigit()
 
-    protected open fun isNumericPrefix(byte: Byte): Boolean = byte in NumericPrefixes
+    protected open fun isNumericPrefix(byte: UByte): Boolean = byte in NumericPrefixes
 
-    protected open fun isNumeric(byte: Byte): Boolean = isDigit(byte) || isNumericPrefix(byte)
+    protected open fun isNumeric(byte: UByte): Boolean = isDigit(byte) || isNumericPrefix(byte)
 
-    protected open fun isWhitespace(byte: Byte): Boolean = charFromCode(byte).isWhitespace()
+    protected open fun isWhitespace(byte: UByte): Boolean = charFromCode(byte).isWhitespace()
 
-    protected open fun isDelimiter(byte: Byte): Boolean = byte in Delimiters
+    protected open fun isDelimiter(byte: UByte): Boolean = byte in Delimiters
 
-    protected open fun charFromCode(byte: Byte): Char = byte.toInt().toChar()
+    protected open fun charFromCode(byte: UByte): Char = byte.toInt().toChar()
 
-    protected open fun toDigit(byte: Byte): Int = charFromCode(byte).digitToInt()
+    protected open fun toDigit(byte: UByte): Int = charFromCode(byte).digitToInt()
 
 }

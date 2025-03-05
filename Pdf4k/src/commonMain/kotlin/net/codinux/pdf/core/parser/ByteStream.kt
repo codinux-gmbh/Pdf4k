@@ -5,7 +5,8 @@ import net.codinux.pdf.core.objects.PdfRawStream
 import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
 
-open class ByteStream(protected val bytes: ByteArray) {
+@OptIn(ExperimentalUnsignedTypes::class)
+open class ByteStream(protected val bytes: UByteArray) {
 
     companion object {
         fun fromPdfRawStream(rawStream: PdfRawStream, decoder: StreamDecoder = StreamDecoder()): ByteStream =
@@ -24,7 +25,7 @@ open class ByteStream(protected val bytes: ByteArray) {
         this.index = offset
     }
 
-    open fun next(): Byte {
+    open fun next(): UByte {
         val byte = this.bytes[this.index++]
 
         if (byte == CharCodes.Newline) {
@@ -37,13 +38,13 @@ open class ByteStream(protected val bytes: ByteArray) {
         return byte
     }
 
-    open fun peek(): Byte = this.bytes[this.index]
+    open fun peek(): UByte = this.bytes[this.index]
 
-    open fun peekAhead(steps: Int): Byte = this.bytes[this.index + steps]
+    open fun peekAhead(steps: Int): UByte = this.bytes[this.index + steps]
 
-    open fun peekAt(offset: Int): Byte = this.bytes[offset]
+    open fun peekAt(offset: Int): UByte = this.bytes[offset]
 
-    open fun assertNext(expected: Byte): Byte {
+    open fun assertNext(expected: UByte): UByte {
         if (this.peek() != expected) {
             throw NextByteAssertionError(this.position(), expected, this.peek())
         }
@@ -57,7 +58,7 @@ open class ByteStream(protected val bytes: ByteArray) {
 
     open fun offset(): Int = this.index
 
-    open fun slice(start: Int, end: Int): ByteArray = this.bytes.sliceArray(IntRange(start, end - 1))
+    open fun slice(start: Int, end: Int): UByteArray = this.bytes.sliceArray(IntRange(start, end - 1))
 
     open fun position(): Position = Position(line, column, column)
 

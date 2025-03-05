@@ -1,8 +1,9 @@
 package net.codinux.pdf.core.syntax
 
+@OptIn(ExperimentalUnsignedTypes::class)
 object Keywords {
 
-    val Header = byteArrayOf(
+    val Header = ubyteArrayOf(
         CharCodes.Percent,
         CharCodes.P,
         CharCodes.D,
@@ -10,7 +11,7 @@ object Keywords {
         CharCodes.Dash,
     )
 
-    val EOF = byteArrayOf(
+    val EOF = ubyteArrayOf(
         CharCodes.Percent,
         CharCodes.Percent,
         CharCodes.E,
@@ -18,9 +19,9 @@ object Keywords {
         CharCodes.F,
     )
 
-    val Obj = byteArrayOf(CharCodes.o, CharCodes.b, CharCodes.j)
+    val Obj = ubyteArrayOf(CharCodes.o, CharCodes.b, CharCodes.j)
 
-    val Endobj = byteArrayOf(
+    val Endobj = ubyteArrayOf(
         CharCodes.e,
         CharCodes.n,
         CharCodes.d,
@@ -30,9 +31,9 @@ object Keywords {
     )
 
 
-    val Xref = byteArrayOf(CharCodes.x, CharCodes.r, CharCodes.e, CharCodes.f)
+    val Xref = ubyteArrayOf(CharCodes.x, CharCodes.r, CharCodes.e, CharCodes.f)
 
-    val Trailer = byteArrayOf(
+    val Trailer = ubyteArrayOf(
         CharCodes.t,
         CharCodes.r,
         CharCodes.a,
@@ -42,7 +43,7 @@ object Keywords {
         CharCodes.r,
     )
 
-    val StartXref = byteArrayOf(
+    val StartXref = ubyteArrayOf(
         CharCodes.s,
         CharCodes.t,
         CharCodes.a,
@@ -55,14 +56,14 @@ object Keywords {
     )
 
 
-    val True = byteArrayOf(CharCodes.t, CharCodes.r, CharCodes.u, CharCodes.e)
+    val True = ubyteArrayOf(CharCodes.t, CharCodes.r, CharCodes.u, CharCodes.e)
 
-    val False = byteArrayOf(CharCodes.f, CharCodes.a, CharCodes.l, CharCodes.s, CharCodes.e)
+    val False = ubyteArrayOf(CharCodes.f, CharCodes.a, CharCodes.l, CharCodes.s, CharCodes.e)
 
-    val Null = byteArrayOf(CharCodes.n, CharCodes.u, CharCodes.l, CharCodes.l)
+    val Null = ubyteArrayOf(CharCodes.n, CharCodes.u, CharCodes.l, CharCodes.l)
 
 
-    val Stream = byteArrayOf(
+    val Stream = ubyteArrayOf(
         CharCodes.s,
         CharCodes.t,
         CharCodes.r,
@@ -71,12 +72,12 @@ object Keywords {
         CharCodes.m,
     )
 
-    val StreamEOF1 = byteArrayOf(*Stream, CharCodes.Space, CharCodes.CarriageReturn, CharCodes.Newline)
-    val StreamEOF2 = byteArrayOf(*Stream, CharCodes.CarriageReturn, CharCodes.Newline)
-    val StreamEOF3 = byteArrayOf(*Stream, CharCodes.CarriageReturn)
-    val StreamEOF4 = byteArrayOf(*Stream, CharCodes.Newline)
+    val StreamEOF1 = ubyteArrayOf(*Stream, CharCodes.Space, CharCodes.CarriageReturn, CharCodes.Newline)
+    val StreamEOF2 = ubyteArrayOf(*Stream, CharCodes.CarriageReturn, CharCodes.Newline)
+    val StreamEOF3 = ubyteArrayOf(*Stream, CharCodes.CarriageReturn)
+    val StreamEOF4 = ubyteArrayOf(*Stream, CharCodes.Newline)
 
-    val Endstream = byteArrayOf(
+    val Endstream = ubyteArrayOf(
         CharCodes.e,
         CharCodes.n,
         CharCodes.d,
@@ -88,8 +89,8 @@ object Keywords {
         CharCodes.m,
     )
 
-    val EOF1endstream = byteArrayOf(CharCodes.CarriageReturn, CharCodes.Newline, *Endstream)
-    val EOF2endstream = byteArrayOf(CharCodes.CarriageReturn, *Endstream)
-    val EOF3endstream = byteArrayOf(CharCodes.Newline, *Endstream)
+    val EOF1endstream = ubyteArrayOf(CharCodes.CarriageReturn, CharCodes.Newline, *Endstream)
+    val EOF2endstream = ubyteArrayOf(CharCodes.CarriageReturn, *Endstream)
+    val EOF3endstream = ubyteArrayOf(CharCodes.Newline, *Endstream)
 
 }

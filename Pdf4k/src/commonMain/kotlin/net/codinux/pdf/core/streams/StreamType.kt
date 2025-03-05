@@ -1,16 +1,16 @@
 package net.codinux.pdf.core.streams
 
+@OptIn(ExperimentalUnsignedTypes::class)
 interface StreamType {
 
     companion object {
-        val OutOfRangeByte: Byte = -1
-        val OutOfRangeUShort: UShort = (-1).toUShort()
+        val OutOfRangeByte: UByte? = null
     }
 
 
     val isEmpty: Boolean
 
-    fun getByte(): Byte
+    fun getByte(): UByte?
 
     // seems only to be used in tests
     // fun getUInt16(): UShort
@@ -19,9 +19,9 @@ interface StreamType {
     // fun getInt32(): Int
 
     // forceClamped seems only to be used in tests
-    fun getBytes(length: Int /*, forceClamped: Boolean? = null*/): ByteArray
+    fun getBytes(length: Int /*, forceClamped: Boolean? = null*/): UByteArray
 
-    fun peekByte(): Byte
+    fun peekByte(): UByte?
 
     // does not seem to be used
     // fun peekBytes(length: Int, forceClamped: Boolean? = null): ByteArray
@@ -35,6 +35,6 @@ interface StreamType {
     // seems only to be used in tests
     // fun makeSubStream(start: Int, length: Int): StreamType
 
-    fun decode(): ByteArray
+    fun decode(): UByteArray
 
 }

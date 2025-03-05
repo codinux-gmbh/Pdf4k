@@ -8,6 +8,7 @@ import net.codinux.pdf.core.objects.PdfRef
 import net.codinux.pdf.test.PdfTestData
 import kotlin.test.Test
 
+@OptIn(ExperimentalUnsignedTypes::class)
 class PdfParserTest {
 
     @Test

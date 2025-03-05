@@ -19,6 +19,7 @@ import kotlin.experimental.and
  * JavaScript FlateStream class in Mozilla's pdf.js project, made available
  * under the Apache 2.0 open source license.
  */
+@OptIn(ExperimentalUnsignedTypes::class)
 open class FlateStream(protected val stream: StreamType, maybeLength: Int? = null) : DecodeStream(maybeLength) {
 
     companion object {
@@ -125,20 +126,20 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         if (cmf == OutOfRangeByte || flg == OutOfRangeByte) {
             throw IllegalArgumentException("Invalid header in flate stream: $cmf, $flg")
         }
-        if ((cmf and 0x0F) != 0x08.toByte()) {
+        if ((cmf and 0x0F.toUByte()) != 0x08.toUByte()) {
             throw IllegalArgumentException("Unknown compression method in flate stream: $cmf, $flg")
         }
-        if (((cmf.shl(8)) + flg) % 31 != 0) {
+        if ((cmf.shl(8) + flg.toUByte().toInt()) % 31 != 0) {
             throw IllegalArgumentException("Bad FCHECK in flate stream: $cmf, $flg")
         }
-        if (flg and 0x20 != 0.toByte()) {
+        if (flg and 0x20.toUByte() != 0.toUByte()) {
             throw IllegalArgumentException("FDICT bit set in flate stream: $cmf, $flg")
         }
     }
 
 
     override fun readBlock() {
-        var buffer: ByteArray
+        var buffer: UByteArray
         var len: Int
         val str = stream
 
@@ -269,7 +270,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
                         buffer = ensureBuffer(pos + 1)
                         limit = buffer.size
                     }
-                    buffer[pos++] = code1.toByte()
+                    buffer[pos++] = code1.toUByte()
                 }
                 code1 == 256 -> {
                     bufferLength = pos
