@@ -12,13 +12,22 @@ open class PdfContext(
 
     protected val indirectObjects = mutableMapOf<PdfRef, PdfObject>()
 
-    protected var largestObjectNumber = 0
+    open var largestObjectNumber = 0
+        protected set
 
-    fun assign(ref: PdfRef, pdfObject: PdfObject) {
+
+    open fun addIndirectObject(ref: PdfRef, pdfObject: PdfObject) {
         indirectObjects[ref] = pdfObject
 
         if (ref.objectNumber > this.largestObjectNumber) {
             this.largestObjectNumber= ref.objectNumber
         }
     }
+
+    open fun addIndirectObjects(indirectObjects: List<Pair<PdfRef, PdfObject>>) {
+        indirectObjects.forEach { (ref, pdfObject) ->
+            addIndirectObject(ref, pdfObject)
+        }
+    }
+
 }

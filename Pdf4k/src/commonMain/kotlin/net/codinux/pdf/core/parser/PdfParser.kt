@@ -12,6 +12,7 @@ import net.codinux.pdf.core.objects.PdfCrossRefSection
 import net.codinux.pdf.core.objects.PdfName
 import net.codinux.pdf.core.objects.PdfRawStream
 import net.codinux.pdf.core.objects.PdfRef
+import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
 import net.codinux.pdf.core.syntax.Keywords
 
@@ -19,7 +20,8 @@ import net.codinux.pdf.core.syntax.Keywords
 open class PdfParser(
     pdfBytes: UByteArray,
     protected val throwOnInvalidObject: Boolean = false,
-    capNumbers: Boolean = false
+    capNumbers: Boolean = false,
+    protected val streamDecoder: StreamDecoder = StreamDecoder.Instance
 ) : PdfObjectParser(ByteStream(pdfBytes), PdfContext(), capNumbers) {
 
     protected var alreadyParsed = false
@@ -106,13 +108,14 @@ open class PdfParser(
 
         val rawStreamType = if (pdfObject is PdfRawStream) pdfObject.dict.getAs<PdfName>(PdfName.Type)?.name else null
         if (rawStreamType == "ObjStm") {
-            // TODO
+            val indirectObjects = PdfObjectStreamParser(pdfObject as PdfRawStream, streamDecoder).parseIndirectObjects(referencePool)
+            context.addIndirectObjects(indirectObjects)
         } else if (rawStreamType == "XRef") {
-            val (trailerInfo, xrefStream) = PdfXRefStreamParser(pdfObject as PdfRawStream).parseTrailerInfoAndXrefStream(referencePool)
+            val (trailerInfo, xrefStream) = PdfXRefStreamParser(pdfObject as PdfRawStream, streamDecoder).parseTrailerInfoAndXrefStream(referencePool)
             context.trailerInfo = trailerInfo
             context.crossReferenceSection = xrefStream
         } else {
-            context.assign(ref, pdfObject)
+            context.addIndirectObject(ref, pdfObject)
         }
 
         return ref
