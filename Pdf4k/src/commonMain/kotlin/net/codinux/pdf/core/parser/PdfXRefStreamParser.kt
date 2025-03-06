@@ -1,7 +1,6 @@
 package net.codinux.pdf.core.parser
 
 import net.codinux.log.logger
-import net.codinux.pdf.core.document.TrailerInfo
 import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.streams.StreamDecoder
 
@@ -12,22 +11,7 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
     protected val log by logger()
 
 
-    open fun parseTrailerInfoAndXrefStream(referencePool: MutableMap<String, PdfRef>): Pair<TrailerInfo, PdfCrossRefSection> {
-        // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in XRef stream
-        // instead of a separate Trailer dictionary at end of PDF file
-        val trailerInfo = TrailerInfo(
-            size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
-            root = dict.get(PdfName.Root),
-            encrypt = dict.get(PdfName.Encrypt),
-            info = dict.get(PdfName.Info),
-            id = dict.getAs(PdfName.ID),
-            previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
-        )
-
-        return Pair(trailerInfo, parseXrefStream(referencePool))
-    }
-
-    protected open fun parseXrefStream(referencePool: MutableMap<String, PdfRef>): PdfCrossRefSection {
+    open fun parseXrefStream(referencePool: MutableMap<String, PdfRef>): PdfCrossRefSection {
         val indices = dict.get(PdfName.Index)
 
         val subsections = if (indices !is PdfArray) {

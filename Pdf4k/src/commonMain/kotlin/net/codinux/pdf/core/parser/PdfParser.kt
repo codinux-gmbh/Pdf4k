@@ -108,9 +108,14 @@ open class PdfParser(
             val indirectObjects = PdfObjectStreamParser(pdfObject as PdfRawStream, streamDecoder).parseIndirectObjects(referencePool)
             context.addIndirectObjects(indirectObjects)
         } else if (rawStreamType == "XRef") {
-            val (trailerInfo, xrefStream) = PdfXRefStreamParser(pdfObject as PdfRawStream, streamDecoder).parseTrailerInfoAndXrefStream(referencePool)
-            context.trailerInfo = trailerInfo
-            context.crossReferenceSection = xrefStream
+            val xrefStream = pdfObject as PdfRawStream
+
+            // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in
+            // XRef stream instead of a separate Trailer dictionary at end of PDF file
+            mapTrailerInfo(xrefStream.dict)
+
+            val xrefStreamParser = PdfXRefStreamParser(xrefStream, streamDecoder)
+            context.crossReferenceSection = xrefStreamParser.parseXrefStream(referencePool)
         } else {
             context.addIndirectObject(ref, pdfObject)
         }
@@ -192,6 +197,10 @@ open class PdfParser(
 
         // only 'classic' PDFs - that is pre PDF 1.5 PDFs without cross-reference streams - are required to have a Trailer dictionary
         val dict = parseDict()
+        mapTrailerInfo(dict)
+    }
+
+    protected open fun mapTrailerInfo(dict: PdfDict) {
         context.trailerInfo = TrailerInfo(
             size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
             root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
