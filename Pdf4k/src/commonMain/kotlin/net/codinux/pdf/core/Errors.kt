@@ -32,6 +32,8 @@ open class NextByteAssertionError(position: ByteStream.Position, val expectedByt
 open class PdfObjectParsingError(position: ByteStream.Position, byte: UByte)
     : PdfParsingError(position, "ailed to parse PDF object starting with the following byte: $byte")
 
+open class PdfInvalidObjectParsingError(position: ByteStream.Position) : PdfParsingError(position, "Failed to parse invalid PDF object")
+
 open class PdfStreamParsingError(pos: ByteStream.Position) : PdfParsingError(pos, "Failed to parse PDF stream")
 
 open class UnbalancedParenthesisError(position: ByteStream.Position) : PdfParsingError(position, "Failed to parse PDF literal string due to unbalanced parenthesis")

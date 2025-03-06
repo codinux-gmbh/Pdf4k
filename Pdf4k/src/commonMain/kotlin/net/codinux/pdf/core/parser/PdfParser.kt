@@ -1,9 +1,6 @@
 package net.codinux.pdf.core.parser
 
-import net.codinux.pdf.core.MissingKeywordError
-import net.codinux.pdf.core.MissingPdfHeaderError
-import net.codinux.pdf.core.ReparseError
-import net.codinux.pdf.core.StalledParserError
+import net.codinux.pdf.core.*
 import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.document.PdfHeader
 import net.codinux.pdf.core.document.PdfTrailer
@@ -134,8 +131,7 @@ open class PdfParser(
             } catch (e: Throwable) {
                 log.error(e) { "Could not parse indirect object" }
                 bytes.moveTo(initialOffset)
-                // TODO
-//                tryToParseInvalidIndirectObject()
+                tryToParseInvalidIndirectObject()
             }
 
             skipWhitespaceAndComments()
@@ -143,6 +139,45 @@ open class PdfParser(
             // TODO: Can this be done only when needed, to avoid harming performance?
             skipJibberish()
         }
+    }
+
+    // TODO: Improve and clean this up
+    protected open fun tryToParseInvalidIndirectObject(): PdfRef {
+        val startPos = bytes.position()
+
+        val message = "Trying to parse invalid object: $startPos"
+        if (throwOnInvalidObject) {
+            throw IllegalStateException(message)
+        }
+        log.warn { message }
+
+        val ref = parseIndirectObjectHeader()
+
+        log.warn { "Invalide object ref: $ref" }
+
+        skipWhitespaceAndComments()
+        val start = bytes.offset()
+
+        var failed = true
+        while (bytes.hasNext()) {
+            if (matchKeyword(Keywords.Endobj)) {
+                failed = false
+                break
+            }
+
+            bytes.next()
+        }
+
+        if (failed) {
+            throw PdfInvalidObjectParsingError(startPos)
+        }
+
+        val end = bytes.offset() - Keywords.Endobj.size
+
+        val `object` = PdfInvalidObject(bytes.slice(start, end))
+        context.addIndirectObject(ref, `object`)
+
+        return ref
     }
 
     protected open fun maybeParseCrossRefSection(): PdfCrossRefSection? {
