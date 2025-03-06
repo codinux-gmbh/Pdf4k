@@ -14,10 +14,12 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
 
     open fun parseTrailerInfoAndXrefStream(referencePool: MutableMap<String, PdfRef>): Pair<TrailerInfo, PdfCrossRefSection> {
         val trailerInfo = TrailerInfo(
+            size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
             root = dict.get(PdfName.Root),
             encrypt = dict.get(PdfName.Encrypt),
             info = dict.get(PdfName.Info),
-            id = dict.get(PdfName.ID),
+            id = dict.getAs(PdfName.ID),
+            previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
         )
 
         return Pair(trailerInfo, parseXrefStream(referencePool))

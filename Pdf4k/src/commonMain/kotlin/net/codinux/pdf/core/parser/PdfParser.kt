@@ -8,10 +8,7 @@ import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.document.PdfHeader
 import net.codinux.pdf.core.document.PdfTrailer
 import net.codinux.pdf.core.document.TrailerInfo
-import net.codinux.pdf.core.objects.PdfCrossRefSection
-import net.codinux.pdf.core.objects.PdfName
-import net.codinux.pdf.core.objects.PdfRawStream
-import net.codinux.pdf.core.objects.PdfRef
+import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
 import net.codinux.pdf.core.syntax.Keywords
@@ -195,10 +192,12 @@ open class PdfParser(
 
         val dict = parseDict()
         context.trailerInfo = TrailerInfo(
+            size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
             root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
             encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt,
             info = dict.get(PdfName.Info) ?: context.trailerInfo?.info,
-            id = dict.get(PdfName.ID) ?: context.trailerInfo?.id,
+            id = dict.getAs(PdfName.ID) ?: context.trailerInfo?.id,
+            previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
         )
     }
 

@@ -44,6 +44,7 @@ open class PdfName(val name: String): PdfObject {
         val ID = PdfName("ID")
         val Size = PdfName("Size")
         val Index = PdfName("Index")
+        val Prev = PdfName("Prev")
     }
 
 
