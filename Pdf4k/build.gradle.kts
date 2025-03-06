@@ -79,6 +79,7 @@ kotlin {
     val klfVersion: String by project
 
     val assertKVersion: String by project
+    val invoiceTestFilesVersion: String by project
     val logbackVersion: String by project
 
     sourceSets {
@@ -92,7 +93,17 @@ kotlin {
         }
 
         jvmTest.dependencies {
+            implementation("net.codinux.invoicing:e-invoice-test-files:$invoiceTestFilesVersion")
+
+            implementation("org.junit.jupiter:junit-jupiter-params:5.11.4")
+
             implementation("ch.qos.logback:logback-classic:$logbackVersion")
         }
     }
+}
+
+
+
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform() // use JUnit 5, required for @ParameterizedTests
 }

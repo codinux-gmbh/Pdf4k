@@ -5,5 +5,6 @@ allprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal() // TODO: remove as soon as eInvoice-Testfiles version 1.0.0 is out
     }
 }
