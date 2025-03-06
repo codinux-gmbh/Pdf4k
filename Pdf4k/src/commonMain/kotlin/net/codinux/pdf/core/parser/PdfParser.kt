@@ -190,6 +190,7 @@ open class PdfParser(
         }
         skipWhitespaceAndComments()
 
+        // only 'classic' PDFs - that is pre PDF 1.5 PDFs without cross-reference streams - are required to have a Trailer dictionary
         val dict = parseDict()
         context.trailerInfo = TrailerInfo(
             size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,

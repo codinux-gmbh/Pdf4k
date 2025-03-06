@@ -13,6 +13,8 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
 
 
     open fun parseTrailerInfoAndXrefStream(referencePool: MutableMap<String, PdfRef>): Pair<TrailerInfo, PdfCrossRefSection> {
+        // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in XRef stream
+        // instead of a separate Trailer dictionary at end of PDF file
         val trailerInfo = TrailerInfo(
             size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
             root = dict.get(PdfName.Root),
