@@ -47,7 +47,7 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
             }
         }
 
-        val byteWidths = mutableListOf(-1, -1, -1)
+        val byteWidths = mutableListOf(0, 0, 0) // in case W is not set; use the same default value as in getValueOfByteWidth() then
         dict.getAs<PdfArray>("W")?.let { widths -> // W is required per spec, but to be on the safe side
             for (index in 0..<widths.size) {
                 widths.getAs<PdfNumber>(index)?.value?.toInt()?.let {
