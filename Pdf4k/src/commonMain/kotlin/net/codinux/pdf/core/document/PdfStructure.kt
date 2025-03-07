@@ -17,6 +17,8 @@ open class PdfStructure(
 
     protected val indirectObjects = mutableMapOf<PdfRef, PdfObject>()
 
+    internal fun getIndirectObjects() = indirectObjects
+
     open var largestObjectNumber = 0
         protected set
 

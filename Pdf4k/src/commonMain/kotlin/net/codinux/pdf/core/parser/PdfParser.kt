@@ -1,5 +1,6 @@
 package net.codinux.pdf.core.parser
 
+import net.codinux.pdf.api.PdfDocument
 import net.codinux.pdf.core.*
 import net.codinux.pdf.core.document.PdfStructure
 import net.codinux.pdf.core.document.PdfHeader
@@ -23,7 +24,7 @@ open class PdfParser(
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be
      * quite time-consuming for large PDFs.
      */
-    open fun parseDocument(): PdfStructure {
+    open fun parseDocument(): PdfDocument {
         val context = PdfStructure()
         context.header = parseHeader()
 
@@ -38,13 +39,13 @@ open class PdfParser(
             previousOffset = offset
         }
 
-        return context
+        return PdfDocument(context)
     }
 
     /**
      * Tries to parse only the most elementary bytes of a PDF.
      */
-    open fun parseDocumentEfficiently(): PdfStructure {
+    open fun parseDocumentEfficiently(): PdfDocument {
         val context = PdfStructure()
         context.header = parseHeader()
 
@@ -80,7 +81,7 @@ open class PdfParser(
             }
         }
 
-        return context
+        return PdfDocument(context)
     }
 
 

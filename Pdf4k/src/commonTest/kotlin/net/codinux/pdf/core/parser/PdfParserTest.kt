@@ -2,9 +2,7 @@ package net.codinux.pdf.core.parser
 
 import assertk.assertThat
 import assertk.assertions.*
-import net.codinux.pdf.core.document.PdfStructure
-import net.codinux.pdf.core.objects.PdfArray
-import net.codinux.pdf.core.objects.PdfHexString
+import net.codinux.pdf.api.PdfDocument
 import net.codinux.pdf.core.objects.PdfRef
 import net.codinux.pdf.test.PdfTestData
 import kotlin.test.Test
@@ -30,10 +28,8 @@ class PdfParserTest {
         assertHeader_1_7(result)
     }
 
-    private fun assertHeader_1_7(result: PdfStructure) {
-        assertThat(result.header).isNotNull()
-        assertThat(result.header!!.major).isEqualTo(1)
-        assertThat(result.header!!.minor).isEqualTo(7)
+    private fun assertHeader_1_7(result: PdfDocument) {
+        assertThat(result.pdfVersion).isEqualTo(1.7f)
     }
 
     @Test
@@ -54,10 +50,8 @@ class PdfParserTest {
         assertHeader_1_4(result)
     }
 
-    private fun assertHeader_1_4(result: PdfStructure) {
-        assertThat(result.header).isNotNull()
-        assertThat(result.header!!.major).isEqualTo(1)
-        assertThat(result.header!!.minor).isEqualTo(4)
+    private fun assertHeader_1_4(result: PdfDocument) {
+        assertThat(result.pdfVersion).isEqualTo(1.4f)
     }
 
 
@@ -79,24 +73,15 @@ class PdfParserTest {
         assertTrailerDictionary_1_7(result)
     }
 
-    private fun assertTrailerDictionary_1_7(result: PdfStructure) {
-        assertThat(result.trailerInfo).isNotNull()
-        // this PDF's trailer dictionary contains only /Root and /ID
-        assertThat(result.trailerInfo!!.root is PdfRef).isTrue()
-        assertThat((result.trailerInfo!!.root as PdfRef).objectNumber).isEqualTo(1)
+    private fun assertTrailerDictionary_1_7(result: PdfDocument) {
+        // this PDF's trailer dictionary contains only /Root and /ID (= creationHash and lastModifiedHash)
+        assertThat((result.catalog as PdfRef).objectNumber).isEqualTo(1)
 
-        assertThat(result.trailerInfo!!.info).isNull()
-        assertThat(result.trailerInfo!!.encrypt).isNull()
+        assertThat(result.documentInfo).isNull()
+        assertThat(result.isEncrypted).isFalse()
 
-        assertThat(result.trailerInfo!!.id is PdfArray).isTrue()
-        val idItems = (result.trailerInfo!!.id as PdfArray).items
-        assertThat(idItems).hasSize(2)
-        val creationHash = idItems[0]
-        val lastModifiedHash = idItems[1]
-        assertThat(creationHash is PdfHexString).isTrue()
-        assertThat((creationHash as PdfHexString).value).isEqualTo("66064282FD5B59CB6DAFD284A9EB3BAC")
-        assertThat(lastModifiedHash is PdfHexString).isTrue()
-        assertThat((lastModifiedHash as PdfHexString).value).isEqualTo("66064282FD5B59CB6DAFD284A9EB3BAC")
+        assertThat(result.lowLevelDetails.creationHash).isEqualTo("66064282FD5B59CB6DAFD284A9EB3BAC")
+        assertThat(result.lowLevelDetails.lastModifiedHash).isEqualTo("66064282FD5B59CB6DAFD284A9EB3BAC")
     }
 
     @Test
@@ -117,24 +102,15 @@ class PdfParserTest {
         assertTrailerDictionary_1_4(result)
     }
 
-    private fun assertTrailerDictionary_1_4(result: PdfStructure) {
-        assertThat(result.trailerInfo).isNotNull()
-        // this PDF's trailer dictionary contains only /Root and /ID
-        assertThat(result.trailerInfo!!.root is PdfRef).isTrue()
-        assertThat((result.trailerInfo!!.root as PdfRef).objectNumber).isEqualTo(1)
+    private fun assertTrailerDictionary_1_4(result: PdfDocument) {
+        // this PDF's trailer dictionary contains only /Root and /ID (= creationHash and lastModifiedHash)
+        assertThat((result.catalog as PdfRef).objectNumber).isEqualTo(1)
 
-        assertThat(result.trailerInfo!!.info).isNull()
-        assertThat(result.trailerInfo!!.encrypt).isNull()
+        assertThat(result.documentInfo).isNull()
+        assertThat(result.isEncrypted).isFalse()
 
-        assertThat(result.trailerInfo!!.id is PdfArray).isTrue()
-        val idItems = (result.trailerInfo!!.id as PdfArray).items
-        assertThat(idItems).hasSize(2)
-        val creationHash = idItems[0]
-        val lastModifiedHash = idItems[1]
-        assertThat(creationHash is PdfHexString).isTrue()
-        assertThat((creationHash as PdfHexString).value).isEqualTo("3E8D5A4F84D0B77955DA8E168A9055E7")
-        assertThat(lastModifiedHash is PdfHexString).isTrue()
-        assertThat((lastModifiedHash as PdfHexString).value).isEqualTo("3E8D5A4F84D0B77955DA8E168A9055E7")
+        assertThat(result.lowLevelDetails.creationHash).isEqualTo("3E8D5A4F84D0B77955DA8E168A9055E7")
+        assertThat(result.lowLevelDetails.lastModifiedHash).isEqualTo("3E8D5A4F84D0B77955DA8E168A9055E7")
     }
 
 
@@ -156,18 +132,16 @@ class PdfParserTest {
         assertCrossRefStream_1_4(result)
     }
 
-    private fun assertCrossRefStream_1_4(result: PdfStructure) {
-        assertThat(result.xrefByteIndex).isEqualTo(130)
+    private fun assertCrossRefStream_1_4(result: PdfDocument) {
+        assertThat(result.lowLevelDetails.xrefByteIndex).isEqualTo(130)
+        assertThat(result.lowLevelDetails.usesCrossReferenceStream).isFalse()
 
-        assertThat(result.crossReferenceSection).isNotNull()
-        assertThat(result.crossReferenceSection!!.isCrossReferenceStream).isFalse()
-        val sections = result.crossReferenceSection!!.getSections()
-        assertThat(sections).hasSize(1)
-        val singleSection = sections[0]
-        assertThat(singleSection).hasSize(3)
-        assertThat(singleSection[0].offset).isEqualTo(0)
-        assertThat(singleSection[1].offset).isEqualTo(15)
-        assertThat(singleSection[2].offset).isEqualTo(78)
+        assertThat(result.referencesToByteOffset).hasSize(2)
+        val references = result.referencesToByteOffset.entries.toList()
+        assertThat(references[0].key).isEqualTo(PdfRef(1, 0))
+        assertThat(references[0].value).isEqualTo(15)
+        assertThat(references[1].key).isEqualTo(PdfRef(2, 0))
+        assertThat(references[1].value).isEqualTo(78)
     }
 
     @Test
@@ -188,18 +162,18 @@ class PdfParserTest {
         assertCrossRefStream_1_7(result)
     }
 
-    private fun assertCrossRefStream_1_7(result: PdfStructure) {
-        assertThat(result.xrefByteIndex).isEqualTo(226)
+    private fun assertCrossRefStream_1_7(result: PdfDocument) {
+        assertThat(result.lowLevelDetails.xrefByteIndex).isEqualTo(226)
+        assertThat(result.lowLevelDetails.usesCrossReferenceStream).isTrue()
 
-        assertThat(result.crossReferenceSection).isNotNull()
-        assertThat(result.crossReferenceSection!!.isCrossReferenceStream).isTrue()
-        val sections = result.crossReferenceSection!!.getSections()
-        assertThat(sections).hasSize(1)
-        val singleSection = sections[0]
-        assertThat(singleSection).hasSize(3)
-        assertThat(singleSection[0].offset).isEqualTo(15)
-        assertThat(singleSection[1].offset).isEqualTo(3)
-        assertThat(singleSection[2].offset).isEqualTo(78)
+        assertThat(result.referencesToByteOffset).hasSize(3)
+        val references = result.referencesToByteOffset.entries.toList()
+        assertThat(references[0].key).isEqualTo(PdfRef(1, 0))
+        assertThat(references[0].value).isEqualTo(15)
+        assertThat(references[1].key).isEqualTo(PdfRef(2, 0))
+        assertThat(references[1].value).isEqualTo(3)
+        assertThat(references[2].key).isEqualTo(PdfRef(3, 0))
+        assertThat(references[2].value).isEqualTo(78)
     }
 
 }

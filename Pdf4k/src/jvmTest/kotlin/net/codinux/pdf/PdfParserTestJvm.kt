@@ -21,34 +21,17 @@ class PdfParserTestJvm {
 
         val result = underTest.parseDocument()
 
-        assertThat(result.header).isNotNull()
-        assertThat(result.header!!.major).isEqualTo(1)
-        assertThat(result.header!!.minor).isIn(3, 4, 6)
+        assertThat(result.pdfVersion).isIn(1.3f, 1.4f, 1.6f)
 
-        assertThat(result.crossReferenceSection).isNotNull()
-        val sections = result.crossReferenceSection!!.getSections()
-        assertThat(sections).isNotEmpty()
-        sections.forEach { section ->
-            assertThat(section).isNotEmpty()
-        }
+        assertThat(result.referencesToByteOffset).isNotEmpty()
 
-        assertThat(result.trailerInfo).isNotNull()
-        assertThat(result.trailerInfo!!.root is PdfRef).isTrue()
-        assertThat((result.trailerInfo!!.root as PdfRef).objectNumber).isGreaterThanOrEqualTo(1)
+        assertThat((result.catalog as PdfRef).objectNumber).isGreaterThanOrEqualTo(1)
 
-        val infoDict = result.trailerInfo!!.info
-        assertThat(infoDict).isNotNull()
-        assertThat(infoDict is PdfDict || infoDict is PdfRef).isTrue()
+        assertThat(result.documentInfo).isNotNull()
+        assertThat(result.isEncrypted).isFalse()
 
-        assertThat(result.trailerInfo!!.encrypt).isNull()
-
-        assertThat(result.trailerInfo!!.id is PdfArray).isTrue()
-        val idItems = (result.trailerInfo!!.id as PdfArray).items
-        assertThat(idItems).hasSize(2)
-        val creationHash = idItems[0]
-        val lastModifiedHash = idItems[1]
-        assertThat(creationHash is PdfString || creationHash is PdfHexString).isTrue()
-        assertThat(lastModifiedHash is PdfString || lastModifiedHash is PdfHexString).isTrue()
+        assertThat(result.lowLevelDetails.creationHash).isNotNull().isNotEmpty()
+        assertThat(result.lowLevelDetails.lastModifiedHash).isNotNull().isNotEmpty()
     }
 
 
