@@ -1,7 +1,7 @@
 package net.codinux.pdf.core.parser
 
 import net.codinux.pdf.core.*
-import net.codinux.pdf.core.document.PdfContext
+import net.codinux.pdf.core.document.PdfStructure
 import net.codinux.pdf.core.document.PdfHeader
 import net.codinux.pdf.core.document.PdfTrailer
 import net.codinux.pdf.core.document.TrailerInfo
@@ -23,8 +23,8 @@ open class PdfParser(
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be
      * quite time-consuming for large PDFs.
      */
-    open fun parseDocument(): PdfContext {
-        val context = PdfContext()
+    open fun parseDocument(): PdfStructure {
+        val context = PdfStructure()
         context.header = parseHeader()
 
         var previousOffset: Int = -1
@@ -44,8 +44,8 @@ open class PdfParser(
     /**
      * Tries to parse only the most elementary bytes of a PDF.
      */
-    open fun parseDocumentEfficiently(): PdfContext {
-        val context = PdfContext()
+    open fun parseDocumentEfficiently(): PdfStructure {
+        val context = PdfStructure()
         context.header = parseHeader()
 
         /**
@@ -128,7 +128,7 @@ open class PdfParser(
     }
 
 
-    protected open fun parseIndirectObject(context: PdfContext): PdfRef {
+    protected open fun parseIndirectObject(context: PdfStructure): PdfRef {
         val ref = parseIndirectObjectHeader()
 
         skipWhitespaceAndComments()
@@ -159,7 +159,7 @@ open class PdfParser(
         return ref
     }
 
-    protected open fun parseIndirectObjects(context: PdfContext) {
+    protected open fun parseIndirectObjects(context: PdfStructure) {
         skipWhitespaceAndComments()
 
         while (bytes.hasNext() && isDigit(bytes.peek())) {
@@ -181,7 +181,7 @@ open class PdfParser(
     }
 
     // TODO: Improve and clean this up
-    protected open fun tryToParseInvalidIndirectObject(context: PdfContext): PdfRef {
+    protected open fun tryToParseInvalidIndirectObject(context: PdfStructure): PdfRef {
         val startPos = bytes.position()
 
         val message = "Trying to parse invalid object: $startPos"
@@ -219,7 +219,7 @@ open class PdfParser(
         return ref
     }
 
-    protected open fun maybeParseCrossRefSection(context: PdfContext): PdfCrossRefSection? {
+    protected open fun maybeParseCrossRefSection(context: PdfStructure): PdfCrossRefSection? {
         skipWhitespaceAndComments()
         if (matchKeyword(Keywords.Xref) == false) {
             return null
@@ -262,7 +262,7 @@ open class PdfParser(
         return xref
     }
 
-    protected open fun maybeParseTrailerDict(context: PdfContext): TrailerInfo? {
+    protected open fun maybeParseTrailerDict(context: PdfStructure): TrailerInfo? {
         skipWhitespaceAndComments()
         if (matchKeyword(Keywords.Trailer) == false) {
             return null
@@ -276,7 +276,7 @@ open class PdfParser(
         return context.trailerInfo
     }
 
-    protected open fun mapTrailerInfo(dict: PdfDict, context: PdfContext) = TrailerInfo(
+    protected open fun mapTrailerInfo(dict: PdfDict, context: PdfStructure) = TrailerInfo(
         size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
         root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
         encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt,
@@ -304,7 +304,7 @@ open class PdfParser(
         return PdfTrailer(offset)
     }
 
-    protected open fun parseDocumentSection(context: PdfContext) {
+    protected open fun parseDocumentSection(context: PdfStructure) {
         parseIndirectObjects(context)
         maybeParseCrossRefSection(context)
         maybeParseTrailerDict(context)

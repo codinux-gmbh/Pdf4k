@@ -1,6 +1,5 @@
 package net.codinux.pdf.core.parser
 
-import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.streams.StreamDecoder
 
