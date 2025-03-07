@@ -29,6 +29,14 @@ open class PdfCatalog(items: Map<PdfName, PdfObject>) : PdfDict(items) {
      */
     val pageMode: PageMode = mapEnum(items, PdfName.PageMode, PageMode.entries, PageMode.UseNone)
 
+    /**
+     * (Optional; ISO 32000-1) An extensions dictionary containing
+     * developer prefix identification and version numbers for developer
+     * extensions that occur in this document. 7.12, "Extensions
+     * dictionary", describes this dictionary and how it shall be used.
+     */
+    val extensions: PdfDict? = items[PdfName.Extensions] as? PdfDict
+
     protected val log by logger()
 
 

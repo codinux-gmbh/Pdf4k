@@ -52,6 +52,7 @@ open class PdfName(val name: String): PdfObject {
         val URI = PdfName("URI")
         val PageLayout = PdfName("PageLayout")
         val PageMode = PdfName("PageMode")
+        val Extensions = PdfName("Extensions")
     }
 
 
