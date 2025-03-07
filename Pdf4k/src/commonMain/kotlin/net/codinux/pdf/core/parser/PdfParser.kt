@@ -19,21 +19,17 @@ open class PdfParser(
     protected val streamDecoder: StreamDecoder = StreamDecoder.Instance
 ) : PdfObjectParser(ByteStream(pdfBytes), capNumbers) {
 
-    protected val context = PdfContext()
-
-    protected var alreadyParsed = false
-
-
     /**
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be
      * quite time-consuming for large PDFs.
      */
     open fun parseDocument(): PdfContext {
-        parseDocumentHeaderAndRequirementsCheck()
+        val context = PdfContext()
+        context.header = parseHeader()
 
         var previousOffset: Int = -1
         while (bytes.hasNext()) {
-            parseDocumentSection()
+            parseDocumentSection(context)
 
             val offset = bytes.offset()
             if (offset == previousOffset) {
@@ -49,7 +45,8 @@ open class PdfParser(
      * Tries to parse only the most elementary bytes of a PDF.
      */
     open fun parseDocumentEfficiently(): PdfContext {
-        parseDocumentHeaderAndRequirementsCheck()
+        val context = PdfContext()
+        context.header = parseHeader()
 
         /**
          * The trailer of a PDF file enables a PDF processor to quickly find the cross-reference table and certain
@@ -70,28 +67,19 @@ open class PdfParser(
 
             if (matchKeyword(Keywords.Xref)) { // Cross Ref Table
                 bytes.moveTo(bytes.offset() - Keywords.Xref.size) // we matched "xref", so set bytes position back to "xref" start so that it can parse Cross Ref Section
-                maybeParseCrossRefSection()
+                maybeParseCrossRefSection(context)
 
                 val trailerDictStartIndex = bytes.getBytes().lastIndexOf(Keywords.Trailer)
                 if (trailerDictStartIndex != null) {
                     bytes.moveTo(trailerDictStartIndex)
-                    maybeParseTrailerDict()
+                    maybeParseTrailerDict(context)
                 }
             } else { // Cross Ref Stream
-                parseIndirectObject() // parses cross-ref stream and its containing Trailer dict
+                parseIndirectObject(context) // parses cross-ref stream and its containing Trailer dict
             }
         }
 
         return context
-    }
-
-    protected open fun parseDocumentHeaderAndRequirementsCheck() {
-        if (alreadyParsed) {
-            throw ReparseError("PdfParser", "parseDocument | parseDocumentEfficiently")
-        }
-        alreadyParsed = true
-
-        context.header = parseHeader()
     }
 
 
@@ -140,7 +128,7 @@ open class PdfParser(
     }
 
 
-    protected open fun parseIndirectObject(): PdfRef {
+    protected open fun parseIndirectObject(context: PdfContext): PdfRef {
         val ref = parseIndirectObjectHeader()
 
         skipWhitespaceAndComments()
@@ -160,7 +148,7 @@ open class PdfParser(
 
             // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in
             // XRef stream instead of a separate Trailer dictionary at end of PDF file
-            mapTrailerInfo(xrefStream.dict)
+            context.trailerInfo = mapTrailerInfo(xrefStream.dict, context)
 
             val xrefStreamParser = PdfXRefStreamParser(xrefStream, streamDecoder)
             context.crossReferenceSection = xrefStreamParser.parseXrefStream(referencePool)
@@ -171,18 +159,18 @@ open class PdfParser(
         return ref
     }
 
-    protected open fun parseIndirectObjects() {
+    protected open fun parseIndirectObjects(context: PdfContext) {
         skipWhitespaceAndComments()
 
         while (bytes.hasNext() && isDigit(bytes.peek())) {
             val initialOffset = bytes.offset()
 
             try {
-                parseIndirectObject()
+                parseIndirectObject(context)
             } catch (e: Throwable) {
                 log.error(e) { "Could not parse indirect object" }
                 bytes.moveTo(initialOffset)
-                tryToParseInvalidIndirectObject()
+                tryToParseInvalidIndirectObject(context)
             }
 
             skipWhitespaceAndComments()
@@ -193,7 +181,7 @@ open class PdfParser(
     }
 
     // TODO: Improve and clean this up
-    protected open fun tryToParseInvalidIndirectObject(): PdfRef {
+    protected open fun tryToParseInvalidIndirectObject(context: PdfContext): PdfRef {
         val startPos = bytes.position()
 
         val message = "Trying to parse invalid object: $startPos"
@@ -231,7 +219,7 @@ open class PdfParser(
         return ref
     }
 
-    protected open fun maybeParseCrossRefSection(): PdfCrossRefSection? {
+    protected open fun maybeParseCrossRefSection(context: PdfContext): PdfCrossRefSection? {
         skipWhitespaceAndComments()
         if (matchKeyword(Keywords.Xref) == false) {
             return null
@@ -274,28 +262,28 @@ open class PdfParser(
         return xref
     }
 
-    protected open fun maybeParseTrailerDict() {
+    protected open fun maybeParseTrailerDict(context: PdfContext): TrailerInfo? {
         skipWhitespaceAndComments()
         if (matchKeyword(Keywords.Trailer) == false) {
-            return
+            return null
         }
         skipWhitespaceAndComments()
 
         // only 'classic' PDFs - that is pre PDF 1.5 PDFs without cross-reference streams - are required to have a Trailer dictionary
         val dict = parseDict()
-        mapTrailerInfo(dict)
+        context.trailerInfo = mapTrailerInfo(dict, context)
+
+        return context.trailerInfo
     }
 
-    protected open fun mapTrailerInfo(dict: PdfDict) {
-        context.trailerInfo = TrailerInfo(
-            size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
-            root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
-            encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt,
-            info = dict.get(PdfName.Info) ?: context.trailerInfo?.info,
-            id = dict.getAs(PdfName.ID) ?: context.trailerInfo?.id,
-            previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
-        )
-    }
+    protected open fun mapTrailerInfo(dict: PdfDict, context: PdfContext) = TrailerInfo(
+        size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
+        root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
+        encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt,
+        info = dict.get(PdfName.Info) ?: context.trailerInfo?.info,
+        id = dict.getAs(PdfName.ID) ?: context.trailerInfo?.id,
+        previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
+    )
 
     protected open fun maybeParseTrailer(): PdfTrailer? {
         skipWhitespaceAndComments()
@@ -316,10 +304,10 @@ open class PdfParser(
         return PdfTrailer(offset)
     }
 
-    protected open fun parseDocumentSection() {
-        parseIndirectObjects()
-        maybeParseCrossRefSection()
-        maybeParseTrailerDict()
+    protected open fun parseDocumentSection(context: PdfContext) {
+        parseIndirectObjects(context)
+        maybeParseCrossRefSection(context)
+        maybeParseTrailerDict(context)
         maybeParseTrailer()
 
         // TODO: Can this be done only when needed, to avoid harming performance?
