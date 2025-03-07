@@ -46,7 +46,7 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
 
         val entries = parseEntries(subsections, byteWidths, referencePool)
 
-        return PdfCrossRefSection(entries.toMutableList())
+        return PdfCrossRefSection(true, entries.toMutableList())
     }
 
     protected open fun parseEntries(subsections: List<PdfCrossReferenceSubsection>, byteWidths: MutableList<Int>, referencePool: MutableMap<String, PdfRef>): List<MutableList<PdfCrossRefEntry>> {

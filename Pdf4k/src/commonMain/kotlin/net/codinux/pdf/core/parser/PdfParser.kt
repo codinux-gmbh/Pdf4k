@@ -67,8 +67,6 @@ open class PdfParser(
             context.xrefByteIndex = xrefByteOffset
 
             if (matchKeyword(Keywords.Xref)) { // Cross Ref Table
-                context.usesCrossReferenceStream = false
-
                 bytes.moveTo(bytes.offset() - Keywords.Xref.size) // we matched "xref", so set bytes position back to "xref" start so that it can parse Cross Ref Section
                 maybeParseCrossRefSection(context)
 
@@ -78,8 +76,6 @@ open class PdfParser(
                     maybeParseTrailerDict(context)
                 }
             } else { // Cross Ref Stream
-                context.usesCrossReferenceStream = true
-
                 parseIndirectObject(context) // parses cross-ref stream and its containing Trailer dict
             }
         }
@@ -150,7 +146,6 @@ open class PdfParser(
             context.addIndirectObjects(indirectObjects)
         } else if (rawStreamType == "XRef") {
             val xrefStream = pdfObject as PdfRawStream
-            context.usesCrossReferenceStream = true
 
             // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in
             // XRef stream instead of a separate Trailer dictionary at end of PDF file
@@ -234,8 +229,7 @@ open class PdfParser(
         skipWhitespaceAndComments()
 
         var objectNumber = -1
-        val xref = PdfCrossRefSection()
-        context.usesCrossReferenceStream = false
+        val xref = PdfCrossRefSection(false)
 
         while (bytes.hasNext() && isDigit(bytes.peek())) {
             val firstInt = parseRawInt()

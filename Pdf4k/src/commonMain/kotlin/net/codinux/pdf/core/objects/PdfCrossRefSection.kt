@@ -1,6 +1,12 @@
 package net.codinux.pdf.core.objects
 
-open class PdfCrossRefSection(protected val subsections: MutableList<MutableList<PdfCrossRefEntry>> = mutableListOf()) : PdfObject {
+open class PdfCrossRefSection(
+    /**
+     * If PDF file uses modern stream (`true`) or classical table (`false`) for Cross Reference Section.
+     */
+    val isCrossReferenceStream: Boolean,
+    protected val subsections: MutableList<MutableList<PdfCrossRefEntry>> = mutableListOf()
+) : PdfObject {
 
     protected var chunkIndex = -1
 

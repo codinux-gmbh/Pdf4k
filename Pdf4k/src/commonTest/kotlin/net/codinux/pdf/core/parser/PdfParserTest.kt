@@ -157,10 +157,10 @@ class PdfParserTest {
     }
 
     private fun assertCrossRefStream_1_4(result: PdfStructure) {
-        assertThat(result.usesCrossReferenceStream).isNotNull().isFalse()
         assertThat(result.xrefByteIndex).isEqualTo(130)
 
         assertThat(result.crossReferenceSection).isNotNull()
+        assertThat(result.crossReferenceSection!!.isCrossReferenceStream).isFalse()
         val sections = result.crossReferenceSection!!.getSections()
         assertThat(sections).hasSize(1)
         val singleSection = sections[0]
@@ -189,10 +189,10 @@ class PdfParserTest {
     }
 
     private fun assertCrossRefStream_1_7(result: PdfStructure) {
-        assertThat(result.usesCrossReferenceStream).isNotNull().isTrue()
         assertThat(result.xrefByteIndex).isEqualTo(226)
 
         assertThat(result.crossReferenceSection).isNotNull()
+        assertThat(result.crossReferenceSection!!.isCrossReferenceStream).isTrue()
         val sections = result.crossReferenceSection!!.getSections()
         assertThat(sections).hasSize(1)
         val singleSection = sections[0]

@@ -13,10 +13,6 @@ open class PdfStructure(
      * The byte index in PDF file where the Cross Reference Section (XRef table or stream) starts.
      */
     var xrefByteIndex: Int? = null,
-    /**
-     * If PDF file uses modern stream (`true`) or classical table (`false`) for Cross Reference Section.
-     */
-    var usesCrossReferenceStream: Boolean? = null,
 ) {
 
     protected val indirectObjects = mutableMapOf<PdfRef, PdfObject>()
