@@ -63,7 +63,7 @@ open class ByteStream(protected val bytes: UByteArray) {
 
     open fun slice(start: Int, end: Int): UByteArray = this.bytes.sliceArray(IntRange(start, end - 1))
 
-    open fun position(): Position = Position(line, column, column)
+    open fun position(): Position = Position(line, column, offset())
 
 
     open class Position(val line: Int, val column: Int, val offset: Int) {
