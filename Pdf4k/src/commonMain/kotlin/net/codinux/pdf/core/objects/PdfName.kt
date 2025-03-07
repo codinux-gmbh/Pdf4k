@@ -47,6 +47,7 @@ open class PdfName(val name: String): PdfObject {
         val Prev = PdfName("Prev")
 
         // /Root dictionary / catalog entries
+        val Version = PdfName("Version")
         val Lang = PdfName("Lang")
         val URI = PdfName("URI")
         val PageLayout = PdfName("PageLayout")
