@@ -75,7 +75,7 @@ class PdfParserTest {
 
     private fun assertTrailerDictionary_1_7(result: PdfDocument) {
         // this PDF's trailer dictionary contains only /Root and /ID (= creationHash and lastModifiedHash)
-        assertThat((result.catalog as PdfRef).objectNumber).isEqualTo(1)
+        assertThat(result.catalog.language).isNull()
 
         assertThat(result.documentInfo).isNull()
         assertThat(result.isEncrypted).isFalse()
@@ -104,7 +104,7 @@ class PdfParserTest {
 
     private fun assertTrailerDictionary_1_4(result: PdfDocument) {
         // this PDF's trailer dictionary contains only /Root and /ID (= creationHash and lastModifiedHash)
-        assertThat((result.catalog as PdfRef).objectNumber).isEqualTo(1)
+        assertThat(result.catalog.language).isNull()
 
         assertThat(result.documentInfo).isNull()
         assertThat(result.isEncrypted).isFalse()

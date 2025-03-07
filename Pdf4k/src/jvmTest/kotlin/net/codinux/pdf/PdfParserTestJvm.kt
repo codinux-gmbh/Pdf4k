@@ -25,7 +25,7 @@ class PdfParserTestJvm {
 
         assertThat(result.referencesToByteOffset).isNotEmpty()
 
-        assertThat((result.catalog as PdfRef).objectNumber).isGreaterThanOrEqualTo(1)
+        assertThat(result.catalog.language).isNull()
 
         assertThat(result.documentInfo).isNotNull()
         assertThat(result.isEncrypted).isFalse()

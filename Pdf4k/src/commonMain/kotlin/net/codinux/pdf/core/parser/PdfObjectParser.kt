@@ -20,7 +20,24 @@ open class PdfObjectParser(
     protected val namePool = mutableMapOf<String, PdfName>()
 
 
-    protected open fun parseObject(): PdfObject {
+    open fun parseObjectAtOffset(byteOffset: Int): PdfObject {
+        bytes.moveTo(byteOffset)
+
+        val byte = bytes.peek()
+        if (isDigit(byte)) { // obj header like '1 0 obj' -> read to end of obj header
+            while (bytes.hasNext()) {
+                bytes.next()
+
+                if (matchKeyword(Keywords.Obj)) {
+                    break
+                }
+            }
+        }
+
+        return parseObject()
+    }
+
+    fun parseObject(): PdfObject {
         skipWhitespaceAndComments()
 
         when {

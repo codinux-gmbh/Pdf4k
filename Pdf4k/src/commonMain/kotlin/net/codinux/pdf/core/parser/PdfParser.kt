@@ -39,7 +39,7 @@ open class PdfParser(
             previousOffset = offset
         }
 
-        return PdfDocument(context)
+        return PdfDocument(context, this)
     }
 
     /**
@@ -81,7 +81,7 @@ open class PdfParser(
             }
         }
 
-        return PdfDocument(context)
+        return PdfDocument(context, this)
     }
 
 
