@@ -52,7 +52,7 @@ import net.codinux.pdf.core.streams.StreamDecoder
  * not old ones taken from the free list.
  */
 open class PdfObjectStreamParser(rawStream: PdfRawStream, decoder: StreamDecoder = StreamDecoder.Instance)
-    : PdfObjectParser(ByteStream.fromPdfRawStream(rawStream, decoder), PdfContext()) { // TODO: try to fix the PdfContext stuff // TODO: use composition instead of inheritance
+    : PdfObjectParser(ByteStream.fromPdfRawStream(rawStream, decoder)) { // TODO: use composition instead of inheritance
 
     protected val dict = rawStream.dict
 

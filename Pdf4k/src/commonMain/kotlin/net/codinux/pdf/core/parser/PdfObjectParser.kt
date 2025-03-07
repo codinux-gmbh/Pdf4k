@@ -3,7 +3,6 @@ package net.codinux.pdf.core.parser
 import net.codinux.pdf.core.PdfObjectParsingError
 import net.codinux.pdf.core.PdfStreamParsingError
 import net.codinux.pdf.core.UnbalancedParenthesisError
-import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.structures.PdfCatalog
 import net.codinux.pdf.core.structures.PdfPageLeaf
@@ -13,7 +12,6 @@ import net.codinux.pdf.core.syntax.Keywords
 
 open class PdfObjectParser(
     bytes: ByteStream,
-    protected val context: PdfContext,
     capNumbers: Boolean = false
 ) : BaseParser(bytes, capNumbers) {
 

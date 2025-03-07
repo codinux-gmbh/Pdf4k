@@ -17,7 +17,9 @@ open class PdfParser(
     protected val throwOnInvalidObject: Boolean = false,
     capNumbers: Boolean = false,
     protected val streamDecoder: StreamDecoder = StreamDecoder.Instance
-) : PdfObjectParser(ByteStream(pdfBytes), PdfContext(), capNumbers) {
+) : PdfObjectParser(ByteStream(pdfBytes), capNumbers) {
+
+    protected val context = PdfContext()
 
     protected var alreadyParsed = false
 
