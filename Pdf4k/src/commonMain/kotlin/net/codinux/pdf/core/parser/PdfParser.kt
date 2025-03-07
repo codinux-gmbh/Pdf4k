@@ -64,8 +64,11 @@ open class PdfParser(
 
             val xrefByteOffset = parseRawInt()
             bytes.moveTo(xrefByteOffset)
+            context.xrefByteIndex = xrefByteOffset
 
             if (matchKeyword(Keywords.Xref)) { // Cross Ref Table
+                context.usesCrossReferenceStream = false
+
                 bytes.moveTo(bytes.offset() - Keywords.Xref.size) // we matched "xref", so set bytes position back to "xref" start so that it can parse Cross Ref Section
                 maybeParseCrossRefSection(context)
 
@@ -75,6 +78,8 @@ open class PdfParser(
                     maybeParseTrailerDict(context)
                 }
             } else { // Cross Ref Stream
+                context.usesCrossReferenceStream = true
+
                 parseIndirectObject(context) // parses cross-ref stream and its containing Trailer dict
             }
         }
@@ -145,6 +150,7 @@ open class PdfParser(
             context.addIndirectObjects(indirectObjects)
         } else if (rawStreamType == "XRef") {
             val xrefStream = pdfObject as PdfRawStream
+            context.usesCrossReferenceStream = true
 
             // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in
             // XRef stream instead of a separate Trailer dictionary at end of PDF file
@@ -192,7 +198,7 @@ open class PdfParser(
 
         val ref = parseIndirectObjectHeader()
 
-        log.warn { "Invalide object ref: $ref" }
+        log.warn { "Invalid object ref: $ref" }
 
         skipWhitespaceAndComments()
         val start = bytes.offset()
@@ -224,10 +230,12 @@ open class PdfParser(
         if (matchKeyword(Keywords.Xref) == false) {
             return null
         }
+        context.xrefByteIndex = bytes.offset() - Keywords.Xref.size
         skipWhitespaceAndComments()
 
         var objectNumber = -1
         val xref = PdfCrossRefSection()
+        context.usesCrossReferenceStream = false
 
         while (bytes.hasNext() && isDigit(bytes.peek())) {
             val firstInt = parseRawInt()
@@ -285,7 +293,7 @@ open class PdfParser(
         previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
     )
 
-    protected open fun maybeParseTrailer(): PdfTrailer? {
+    protected open fun maybeParseTrailer(context: PdfStructure): PdfTrailer? {
         skipWhitespaceAndComments()
         if (matchKeyword(Keywords.StartXref) == false) {
             return null
@@ -293,6 +301,7 @@ open class PdfParser(
         skipWhitespaceAndComments()
 
         val offset = parseRawInt()
+        context.xrefByteIndex = offset
 
         skipWhitespace()
         matchKeyword(Keywords.EOF)
@@ -308,7 +317,7 @@ open class PdfParser(
         parseIndirectObjects(context)
         maybeParseCrossRefSection(context)
         maybeParseTrailerDict(context)
-        maybeParseTrailer()
+        maybeParseTrailer(context)
 
         // TODO: Can this be done only when needed, to avoid harming performance?
         skipJibberish()
