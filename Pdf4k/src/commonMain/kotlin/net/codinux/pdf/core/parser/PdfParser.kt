@@ -5,6 +5,7 @@ import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.document.PdfHeader
 import net.codinux.pdf.core.document.PdfTrailer
 import net.codinux.pdf.core.document.TrailerInfo
+import net.codinux.pdf.core.extensions.lastIndexOf
 import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
@@ -21,13 +22,12 @@ open class PdfParser(
     protected var alreadyParsed = false
 
 
+    /**
+     * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be
+     * quite time-consuming for large PDFs.
+     */
     open fun parseDocument(): PdfContext {
-        if (alreadyParsed) {
-            throw ReparseError("PdfParser", "parseDocument")
-        }
-        alreadyParsed = true
-
-        context.header = parseHeader()
+        parseDocumentHeaderAndRequirementsCheck()
 
         var previousOffset: Int = -1
         while (bytes.hasNext()) {
@@ -41,6 +41,55 @@ open class PdfParser(
         }
 
         return context
+    }
+
+    /**
+     * Tries to parse only the most elementary bytes of a PDF.
+     */
+    open fun parseDocumentEfficiently(): PdfContext {
+        parseDocumentHeaderAndRequirementsCheck()
+
+        /**
+         * The trailer of a PDF file enables a PDF processor to quickly find the cross-reference table and certain
+         * special objects. PDF processors should read a PDF file from its end. The last line of the file shall contain
+         * only the end-of-file marker, %%EOF. The two preceding lines shall contain, one per line and in order,
+         * the keyword **startxref** and the byte offset in the decoded stream from the beginning of the PDF file to
+         * the beginning of the **xref** keyword in the last cross-reference section. The **startxref** line shall be
+         * preceded by the trailer dictionary, consisting of the keyword **trailer**.
+         */
+
+        val startXRefKeywordIndex = bytes.getBytes().lastIndexOf(Keywords.StartXref)
+        if (startXRefKeywordIndex != null) { // TODO: otherwise throw an exception
+            bytes.moveTo(startXRefKeywordIndex + Keywords.StartXref.size)
+            skipWhitespaceAndComments()
+
+            val xrefByteOffset = parseRawInt()
+            bytes.moveTo(xrefByteOffset)
+
+            if (matchKeyword(Keywords.Xref)) { // Cross Ref Table
+                bytes.moveTo(bytes.offset() - Keywords.Xref.size) // we matched "xref", so set bytes position back to "xref" start so that it can parse Cross Ref Section
+                maybeParseCrossRefSection()
+
+                val trailerDictStartIndex = bytes.getBytes().lastIndexOf(Keywords.Trailer)
+                if (trailerDictStartIndex != null) {
+                    bytes.moveTo(trailerDictStartIndex)
+                    maybeParseTrailerDict()
+                }
+            } else { // Cross Ref Stream
+                parseIndirectObject() // parses cross-ref stream and its containing Trailer dict
+            }
+        }
+
+        return context
+    }
+
+    protected open fun parseDocumentHeaderAndRequirementsCheck() {
+        if (alreadyParsed) {
+            throw ReparseError("PdfParser", "parseDocument | parseDocumentEfficiently")
+        }
+        alreadyParsed = true
+
+        context.header = parseHeader()
     }
 
 

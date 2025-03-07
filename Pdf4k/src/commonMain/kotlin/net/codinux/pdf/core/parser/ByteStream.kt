@@ -21,6 +21,9 @@ open class ByteStream(protected val bytes: UByteArray) {
     protected var column = 0
 
 
+    internal fun getBytes() = bytes
+
+
     open fun moveTo(offset: Int) {
         this.index = offset
     }

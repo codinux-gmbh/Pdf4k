@@ -2,6 +2,7 @@ package net.codinux.pdf.core.parser
 
 import assertk.assertThat
 import assertk.assertions.*
+import net.codinux.pdf.core.document.PdfContext
 import net.codinux.pdf.core.objects.PdfArray
 import net.codinux.pdf.core.objects.PdfHexString
 import net.codinux.pdf.core.objects.PdfRef
@@ -17,6 +18,19 @@ class PdfParserTest {
 
         val result = underTest.parseDocument()
 
+        assertHeader_1_7(result)
+    }
+
+    @Test
+    fun parseHeaderEfficiently_Pdf_1_7() {
+        val underTest = PdfParser(PdfTestData.Empty)
+
+        val result = underTest.parseDocumentEfficiently()
+
+        assertHeader_1_7(result)
+    }
+
+    private fun assertHeader_1_7(result: PdfContext) {
         assertThat(result.header).isNotNull()
         assertThat(result.header!!.major).isEqualTo(1)
         assertThat(result.header!!.minor).isEqualTo(7)
@@ -28,6 +42,19 @@ class PdfParserTest {
 
         val result = underTest.parseDocument()
 
+        assertHeader_1_4(result)
+    }
+
+    @Test
+    fun parseHeaderEfficiently_Pdf_1_4() {
+        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+
+        val result = underTest.parseDocumentEfficiently()
+
+        assertHeader_1_4(result)
+    }
+
+    private fun assertHeader_1_4(result: PdfContext) {
         assertThat(result.header).isNotNull()
         assertThat(result.header!!.major).isEqualTo(1)
         assertThat(result.header!!.minor).isEqualTo(4)
@@ -40,6 +67,19 @@ class PdfParserTest {
 
         val result = underTest.parseDocument()
 
+        assertTrailerDictionary_1_7(result)
+    }
+
+    @Test
+    fun parseTrailerDictionaryEfficiently_Pdf_1_7() {
+        val underTest = PdfParser(PdfTestData.Empty)
+
+        val result = underTest.parseDocumentEfficiently()
+
+        assertTrailerDictionary_1_7(result)
+    }
+
+    private fun assertTrailerDictionary_1_7(result: PdfContext) {
         assertThat(result.trailerInfo).isNotNull()
         // this PDF's trailer dictionary contains only /Root and /ID
         assertThat(result.trailerInfo!!.root is PdfRef).isTrue()
@@ -65,6 +105,19 @@ class PdfParserTest {
 
         val result = underTest.parseDocument()
 
+        assertTrailerDictionary_1_4(result)
+    }
+
+    @Test
+    fun parseTrailerDictionaryEfficiently_Pdf_1_4() {
+        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+
+        val result = underTest.parseDocumentEfficiently()
+
+        assertTrailerDictionary_1_4(result)
+    }
+
+    private fun assertTrailerDictionary_1_4(result: PdfContext) {
         assertThat(result.trailerInfo).isNotNull()
         // this PDF's trailer dictionary contains only /Root and /ID
         assertThat(result.trailerInfo!!.root is PdfRef).isTrue()
@@ -91,6 +144,19 @@ class PdfParserTest {
 
         val result = underTest.parseDocument()
 
+        assertCrossRefStream_1_4(result)
+    }
+
+    @Test
+    fun parseCrossRefTableEfficiently_Pdf_1_4() {
+        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+
+        val result = underTest.parseDocumentEfficiently()
+
+        assertCrossRefStream_1_4(result)
+    }
+
+    private fun assertCrossRefStream_1_4(result: PdfContext) {
         assertThat(result.crossReferenceSection).isNotNull()
         val sections = result.crossReferenceSection!!.getSections()
         assertThat(sections).hasSize(1)
@@ -107,6 +173,19 @@ class PdfParserTest {
 
         val result = underTest.parseDocument()
 
+        assertCrossRefStream_1_7(result)
+    }
+
+    @Test
+    fun parseCrossRefStreamEfficiently_Pdf_1_7() {
+        val underTest = PdfParser(PdfTestData.Empty)
+
+        val result = underTest.parseDocumentEfficiently()
+
+        assertCrossRefStream_1_7(result)
+    }
+
+    private fun assertCrossRefStream_1_7(result: PdfContext) {
         assertThat(result.crossReferenceSection).isNotNull()
         val sections = result.crossReferenceSection!!.getSections()
         assertThat(sections).hasSize(1)
