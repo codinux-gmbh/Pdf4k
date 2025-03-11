@@ -2,6 +2,7 @@ package net.codinux.pdf.api
 
 import net.codinux.pdf.core.document.PdfStructure
 import net.codinux.pdf.core.document.ReferenceResolver
+import net.codinux.pdf.core.mapper.PdfDataMapper
 import net.codinux.pdf.core.objects.PdfName
 import net.codinux.pdf.core.objects.PdfObject
 import net.codinux.pdf.core.objects.PdfRef
@@ -23,6 +24,8 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
 
     protected val referenceResolver: ReferenceResolver
 
+    protected val dataMapper: PdfDataMapper
+
     val referencesToByteOffset: Map<PdfRef, Int>
         get() = referenceResolver.referencesToByteOffset
 
@@ -42,6 +45,7 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
         require(xrefSection != null) { "A PDF file must contain a cross-reference section, either as XRef stream or table" }
         val undeletedXRefEntries = xrefSection.getSections().flatten().filterNot { it.deleted }
         referenceResolver = ReferenceResolver(objectParser, structure, undeletedXRefEntries)
+        dataMapper = PdfDataMapper(referenceResolver)
 
         this.catalog = referenceResolver.lookupDict(root) as PdfCatalog
         this.documentInfo = trailerInfo.info ?: catalog.getAs(PdfName.Info) // sometimes the /Info dictionary resides in /Catalog dict
@@ -61,6 +65,6 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
 
     open fun lookupDict(ref: PdfRef) = referenceResolver.lookupDict(ref)
 
-    protected open fun extractEmbeddedFiles() = referenceResolver.getEmbeddedFiles(catalog)
+    protected open fun extractEmbeddedFiles() = dataMapper.getEmbeddedFiles(catalog)
 
 }
