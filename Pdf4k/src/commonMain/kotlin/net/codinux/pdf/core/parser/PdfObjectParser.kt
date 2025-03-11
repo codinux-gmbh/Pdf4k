@@ -3,6 +3,7 @@ package net.codinux.pdf.core.parser
 import net.codinux.pdf.core.PdfObjectParsingError
 import net.codinux.pdf.core.PdfStreamParsingError
 import net.codinux.pdf.core.UnbalancedParenthesisError
+import net.codinux.pdf.core.mapper.TextDecoder
 import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.structures.PdfCatalog
 import net.codinux.pdf.core.structures.PdfPageLeaf
@@ -10,9 +11,11 @@ import net.codinux.pdf.core.structures.PdfPageTree
 import net.codinux.pdf.core.syntax.CharCodes
 import net.codinux.pdf.core.syntax.Keywords
 
+@OptIn(ExperimentalUnsignedTypes::class)
 open class PdfObjectParser(
     bytes: ByteStream,
-    capNumbers: Boolean = false
+    capNumbers: Boolean = false,
+    protected val textDecoder: TextDecoder = TextDecoder.Instance
 ) : BaseParser(bytes, capNumbers) {
 
     protected val referencePool = mutableMapOf<String, PdfRef>()
@@ -136,18 +139,18 @@ open class PdfObjectParser(
     protected open fun parseName(): PdfName {
         bytes.assertNext(CharCodes.ForwardSlash)
 
-        var name = ""
+        val nameBytes = mutableListOf<UByte>()
         while (bytes.hasNext()) {
             val byte = bytes.peek()
             if (isWhitespace(byte) || isDelimiter(byte)) {
                 break
             }
 
-            name += charFromCode(byte)
+            nameBytes.add(byte)
             bytes.next()
         }
 
-        return PdfName.getOrCreate(namePool, name)
+        return PdfName.getOrCreate(namePool, textDecoder.decodeName(nameBytes.toUByteArray()))
     }
 
     protected open fun parseArray(): PdfArray {

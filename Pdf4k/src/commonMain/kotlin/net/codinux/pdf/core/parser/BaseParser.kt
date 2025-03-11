@@ -152,6 +152,7 @@ open class BaseParser(
 
     protected open fun isDelimiter(byte: UByte): Boolean = byte in Delimiters
 
+    // TODO: this is the same code as in TextDecoder
     protected open fun charFromCode(byte: UByte): Char = byte.toInt().toChar()
 
     protected open fun toDigit(byte: UByte): Int = charFromCode(byte).digitToInt()

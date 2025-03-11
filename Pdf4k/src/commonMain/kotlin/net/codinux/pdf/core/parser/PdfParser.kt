@@ -7,6 +7,7 @@ import net.codinux.pdf.core.document.PdfHeader
 import net.codinux.pdf.core.document.PdfTrailer
 import net.codinux.pdf.core.document.TrailerInfo
 import net.codinux.pdf.core.extensions.lastIndexOf
+import net.codinux.pdf.core.mapper.TextDecoder
 import net.codinux.pdf.core.objects.*
 import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
@@ -17,8 +18,9 @@ open class PdfParser(
     pdfBytes: UByteArray,
     protected val throwOnInvalidObject: Boolean = false,
     capNumbers: Boolean = false,
-    protected val streamDecoder: StreamDecoder = StreamDecoder.Instance
-) : PdfObjectParser(ByteStream(pdfBytes), capNumbers) {
+    protected val streamDecoder: StreamDecoder = StreamDecoder.Instance,
+    textDecoder: TextDecoder = TextDecoder.Instance
+) : PdfObjectParser(ByteStream(pdfBytes), capNumbers, textDecoder) {
 
     /**
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be

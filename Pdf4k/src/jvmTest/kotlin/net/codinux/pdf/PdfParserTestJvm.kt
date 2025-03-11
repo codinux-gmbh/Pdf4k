@@ -37,6 +37,7 @@ class PdfParserTestJvm {
 
         result.embeddedFiles.forEach { file ->
             assertThat(file.filename).isNotEmpty()
+            assertThat(file.mimeType?.contains("#") ?: false).isFalse() // assert that PdfName gets decoded correctly
             assertThat(file.data).isNotEmpty()
 //            assertThat(file.data).hasSize(file.size ?: -1)
         }
