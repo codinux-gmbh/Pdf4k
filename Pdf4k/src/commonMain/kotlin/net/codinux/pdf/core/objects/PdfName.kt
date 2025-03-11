@@ -53,6 +53,10 @@ open class PdfName(val name: String): PdfObject {
         val PageLayout = PdfName("PageLayout")
         val PageMode = PdfName("PageMode")
         val Extensions = PdfName("Extensions")
+        // embedded files
+        val AF = PdfName("AF")
+        val Names = PdfName("Names")
+        val EmbeddedFiles = PdfName("EmbeddedFiles")
     }
 
 

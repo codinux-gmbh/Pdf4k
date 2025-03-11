@@ -26,6 +26,8 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
     val referencesToByteOffset: Map<PdfRef, Int>
         get() = referenceResolver.referencesToByteOffset
 
+    val embeddedFiles: List<EmbeddedFile> by lazy { extractEmbeddedFiles() }
+
 
     init {
         val header = structure.header
@@ -58,5 +60,7 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
     open fun lookupDict(obj: PdfObject) = referenceResolver.lookupDict(obj)
 
     open fun lookupDict(ref: PdfRef) = referenceResolver.lookupDict(ref)
+
+    protected open fun extractEmbeddedFiles() = referenceResolver.getEmbeddedFiles(catalog)
 
 }
