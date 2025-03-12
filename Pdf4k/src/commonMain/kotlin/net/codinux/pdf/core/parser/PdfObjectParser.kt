@@ -212,20 +212,21 @@ open class PdfObjectParser(
         }
 
         val start = bytes.offset()
-        var end: Int
 
-        val length = dict.get("Length")
-        if (length is PdfNumber) {
-            end = start + length.value.toInt()
+        val length = dict.get(PdfName.Length)
+        val end = if (length is PdfNumber) {
+            val end = start + length.value.toInt()
             bytes.moveTo(end)
             skipWhitespaceAndComments()
 
             if (matchKeyword(Keywords.Endstream) == false) {
                 bytes.moveTo(start)
-                end = findEndOfStreamFallback(startPos)
+                findEndOfStreamFallback(startPos)
+            } else {
+                end
             }
         } else {
-            end = findEndOfStreamFallback(startPos)
+            findEndOfStreamFallback(startPos)
         }
 
         val contents = bytes.slice(start, end)
