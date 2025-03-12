@@ -98,8 +98,7 @@ open class TextDecoder {
             } else {
                 if (index + 2 < text.size) {
                     val hexString = charFromCode(text[index + 1]).toString() + charFromCode(text[index + 2])
-                    val codePoint = hexString.toInt(16)
-                    val char = codePoint.toChar()
+                    val char = charFromTwoDigitHex(hexString)
                     chars.add(char)
                 } else {
                     log.warn { "After a hash (#) two hexadecimal digits are expected in string ${text.map { charFromCode(it) }.joinToString("")}" }
@@ -109,7 +108,28 @@ open class TextDecoder {
             }
         }
 
-        return chars.toCharArray().concatToString()
+        return toString(chars.toCharArray())
+    }
+
+    open fun decodeHexString(hexString: String): String {
+        // If the final digit of a hexadecimal string is missing — that is, if there is an odd number of digits — the
+        // final digit shall be assumed to be 0.
+        val toDecode = if (hexString.length % 2 == 0) {
+            hexString
+        } else {
+            hexString + "0"
+        }
+
+        // Each pair of hexadecimal digits defines one byte of the string. White-space characters (see “Table 1 —
+        // White-space characters”) shall be ignored.
+        val bytes = UByteArray(toDecode.length / 2)
+        (toDecode.indices step 2).forEach { hexOffset ->
+            val hexChar = toDecode.substring(hexOffset, hexOffset + 2)
+
+            bytes[hexOffset / 2] = byteFromTwoDigitHex(hexChar)
+        }
+
+        return decodeText(bytes)
     }
 
     /**
@@ -209,6 +229,14 @@ open class TextDecoder {
 
     // TODO: this is the same code as in BaseParser
     open fun charFromCode(byte: UByte): Char = byte.toInt().toChar()
+
+    protected open fun charFromTwoDigitHex(twoDigitHexString: String): Char =
+        twoDigitHexString.toInt(16).toChar()
+
+    protected open fun byteFromTwoDigitHex(twoDigitHexString: String): UByte =
+        twoDigitHexString.toInt(16).toUByte()
+
+    protected open fun toString(chars: CharArray): String = chars.concatToString()
 
     protected open fun isOctal(byte: UByte): Boolean =
         byte >= CharCodes.Zero && byte <= CharCodes.Seven

@@ -89,15 +89,15 @@ open class PdfObjectParser(
 
     // TODO: Maybe update PDFHexString.of() logic to remove whitespace and validate input?
     protected open fun parseHexString(): PdfHexString {
-        var value = ""
+        var hexString = ""
 
         bytes.assertNext(CharCodes.LessThan)
         while (bytes.hasNext() && bytes.peek() != CharCodes.GreaterThan) {
-            value += charFromCode(bytes.next())
+            hexString += charFromCode(bytes.next())
         }
         bytes.assertNext(CharCodes.GreaterThan)
 
-        return PdfHexString(value)
+        return PdfHexString(textDecoder.decodeHexString(hexString), hexString)
     }
 
     protected open fun parseString(): PdfString {

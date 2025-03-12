@@ -34,13 +34,13 @@ open class PdfLowLevelDetails(
     val countUndeletedObjects = undeletedObjectReferences.size
 
     val creationHash = structure.trailerInfo?.id?.get(0)?.let { when (it) {
-        is PdfHexString -> it.value
+        is PdfHexString -> it.asHex
         is PdfString -> it.value
         else -> null
     } }
 
     val lastModifiedHash = structure.trailerInfo?.id?.get(1)?.let { when (it) {
-        is PdfHexString -> it.value
+        is PdfHexString -> it.asHex
         is PdfString -> it.value
         else -> null
     } }

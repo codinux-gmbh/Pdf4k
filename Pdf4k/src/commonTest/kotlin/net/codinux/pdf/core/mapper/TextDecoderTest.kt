@@ -15,7 +15,9 @@ class TextDecoderTest {
     fun decodePdfDocEncodingWithEscapedOctalCodes() {
         val bytes = byteArrayOf(69, 78, 49, 54, 57, 51, 49, 92, 49, 51, 55, 69, 108, 101, 107, 116, 114, 111, 110, 92, 49, 51, 55, 65, 117, 102, 109, 97, 115, 115, 92, 48, 53, 54, 112, 110, 103)
 
-        assertThat(decodeText(bytes)).isEqualTo("EN16931_Elektron_Aufmass.png")
+        val result = decodeText(bytes)
+
+        assertThat(result).isEqualTo("EN16931_Elektron_Aufmass.png")
     }
 
     @Test
@@ -24,7 +26,28 @@ class TextDecoderTest {
 //        val literal = "\\376\\377\\000\\105\\000\\147\\000\\147\\000\\040\\330\\074\\337\\163"
         val literal = listOf(254, 255, 0, 69, 0, 103, 0, 103, 0, 32, 216, 60, 223, 115)
 
-        assertThat(decodeText(literal)).isEqualTo("Egg \uD83C\uDF73")
+        val result = decodeText(literal)
+
+        assertThat(result).isEqualTo("Egg \uD83C\uDF73")
+    }
+
+
+    @Test
+    fun hexStringFromUtf16Be() {
+        val hex = "FEFF0045006700670020D83CDF73"
+
+        val result = underTest.decodeHexString(hex)
+
+        assertThat(result).isEqualTo("Egg \uD83C\uDF73")
+    }
+
+    @Test
+    fun hexStringFromPdfDocEncodedString() {
+        val hex = "61456273006236"
+
+        val result = underTest.decodeHexString(hex)
+
+        assertThat(result).isEqualTo("aEbs\u0000b6")
     }
 
 
