@@ -103,11 +103,11 @@ open class PdfObjectParser(
     protected open fun parseString(): PdfString {
         var nestingLevel = 0
         var isEscaped = false
-        var value = ""
+        val stringBytes = mutableListOf<UByte>()
 
         while (bytes.hasNext()) {
             val byte = bytes.next()
-            value += charFromCode(byte)
+            stringBytes.add(byte)
 
             // Check for unescaped parenthesis
             if (isEscaped == false) {
@@ -127,7 +127,7 @@ open class PdfObjectParser(
             // Once (if) the unescaped parenthesis balance out, return their contents
             if (nestingLevel == 0) {
                 // Remove the outer parens so they aren't part of the contents
-                return PdfString(value.substring(1, value.length - 1))
+                return PdfString(textDecoder.decodeText(stringBytes.subList(1, stringBytes.size - 1).toUByteArray()))
             }
         }
 
