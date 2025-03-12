@@ -211,7 +211,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
                     val extraBits = lengthInfo shr 16
                     val length = (lengthInfo and 0xFFFF) + if (extraBits > 0) getBits(extraBits) else 0
 
-                    var code2 = getCode(distCodeTable)
+                    val code2 = getCode(distCodeTable)
                     val distanceInfo = distDecode[code2]
                     val extraDistBits = distanceInfo shr 16
                     val dist = (distanceInfo and 0xFFFF) + if (extraDistBits > 0) getBits(extraDistBits) else 0
@@ -230,55 +230,59 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         }
     }
 
-    protected open fun getHuffmanCodes(hdr: Int): Pair<HuffmanTable, HuffmanTable> =
-        if (hdr == 1) { // Fixed Huffman codes
-            fixedLitCodeTab to fixedDistCodeTab
-        } else if (hdr == 2) { // Dynamic Huffman codes
-            val numLitCodes = getBits(5) + 257
-            val numDistCodes = getBits(5) + 1
-            val numCodeLenCodes = getBits(4) + 4
+    protected open fun getHuffmanCodes(hdr: Int): Pair<HuffmanTable, HuffmanTable> = when (hdr) {
+        1 -> fixedLitCodeTab to fixedDistCodeTab // Fixed Huffman codes
+        2 -> generateDynamicHuffmanTables() // Dynamic Huffman codes
+        else -> throw Error("Unknown block type in flate stream")
+    }
 
-            // Build the code length table
-            val codeLenCodeLengths = ByteArray(codeLenCodeMap.size)
-            for (i in 0 until numCodeLenCodes) {
-                codeLenCodeLengths[codeLenCodeMap[i]] = getBits(3).toByte()
-            }
-            val codeLenCodeTab = generateHuffmanTable(codeLenCodeLengths)
+    protected open fun generateDynamicHuffmanTables(): Pair<HuffmanTable, HuffmanTable> {
+        val numLitCodes = getBits(5) + 257
+        val numDistCodes = getBits(5) + 1
+        val numCodeLenCodes = getBits(4) + 4
 
-            // Build the literal and distance code tables
-            var len = 0
-            var i = 0
-            val codes = numLitCodes + numDistCodes
-            val codeLengths = ByteArray(codes)
+        // Build the code length table
+        val codeLenCodeLengths = ByteArray(codeLenCodeMap.size)
+        for (i in 0 until numCodeLenCodes) {
+            codeLenCodeLengths[codeLenCodeMap[i]] = getBits(3).toByte()
+        }
+        val codeLenCodeTab = generateHuffmanTable(codeLenCodeLengths)
 
-            while (i < codes) {
-                when (val code = getCode(codeLenCodeTab)) {
-                    16 -> {
-                        val repeatLength = getBits(2) + 3
-                        repeat(repeatLength) { codeLengths[i++] = len.toByte() }
-                    }
-                    17 -> {
-                        val repeatLength = getBits(3) + 3
-                        len = 0
-                        repeat(repeatLength) { codeLengths[i++] = len.toByte() }
-                    }
-                    18 -> {
-                        val repeatLength = getBits(7) + 11
-                        len = 0
-                        repeat(repeatLength) { codeLengths[i++] = len.toByte() }
-                    }
-                    else -> {
-                        codeLengths[i++] = code.toByte()
-                        len = code
-                    }
+        // Build the literal and distance code tables
+        var len = 0
+        var i = 0
+        val codes = numLitCodes + numDistCodes
+        val codeLengths = ByteArray(codes)
+
+        while (i < codes) {
+            when (val code = getCode(codeLenCodeTab)) {
+                16 -> {
+                    val repeatLength = getBits(2) + 3
+                    repeat(repeatLength) { codeLengths[i++] = len.toByte() }
+                }
+
+                17 -> {
+                    val repeatLength = getBits(3) + 3
+                    len = 0
+                    repeat(repeatLength) { codeLengths[i++] = len.toByte() }
+                }
+
+                18 -> {
+                    val repeatLength = getBits(7) + 11
+                    len = 0
+                    repeat(repeatLength) { codeLengths[i++] = len.toByte() }
+                }
+
+                else -> {
+                    codeLengths[i++] = code.toByte()
+                    len = code
                 }
             }
-
-            generateHuffmanTable(codeLengths.copyOf(numLitCodes)) to
-            generateHuffmanTable(codeLengths.copyOfRange(numLitCodes, codes))
-        } else {
-            throw Error("Unknown block type in flate stream")
         }
+
+        return generateHuffmanTable(codeLengths.copyOf(numLitCodes)) to
+                generateHuffmanTable(codeLengths.copyOfRange(numLitCodes, codes))
+    }
 
     protected open fun combineNextTwoBytes(stream: StreamType): Int {
         val lowerOrderByte = ensureByte(stream)
