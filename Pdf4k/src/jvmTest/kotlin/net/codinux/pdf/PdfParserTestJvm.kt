@@ -42,7 +42,9 @@ class PdfParserTestJvm {
             assertThat(file.modificationDate).isNotNull()
 
             assertThat(file.fileContent).isNotEmpty()
-//            assertThat(file.data).hasSize(file.size ?: -1)
+            file.uncompressedSize?.let { size ->
+                assertThat(file.fileContent.size).isEqualTo(size)
+            }
         }
 
         val invoiceXml = result.embeddedFiles.firstOrNull { it.mimeType == "text/xml" }
@@ -51,9 +53,6 @@ class PdfParserTestJvm {
 
         val xml = invoiceXml.fileContentAsString
         assertThat(xml).contains("<?xml ")
-        invoiceXml.size?.let { size ->
-            assertThat(invoiceXml.fileContent.size).isEqualTo(size)
-        }
     }
 
 

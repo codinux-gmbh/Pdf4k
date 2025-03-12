@@ -173,7 +173,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             }
         } else {
             val block = stream.getBytes(blockLen)
-            block.copyInto(buffer)
+            block.copyInto(buffer, bufferLength)
 
             if (block.size < blockLen) {
                 eof = true

@@ -36,6 +36,7 @@ open class Stream(
         if (length <= 0) {
             bytes.sliceArray(IntRange(pos, end))
         } else {
+            val start = this.pos
             val streamEnd = this.end
             var end = pos + length
             if (end > streamEnd) {
@@ -43,7 +44,7 @@ open class Stream(
             }
 
             this.pos = end
-            bytes.sliceArray(IntRange(pos, end))
+            bytes.sliceArray(IntRange(start, end))
         }
 
     override fun peekByte(): UByte? = getByte().also {
