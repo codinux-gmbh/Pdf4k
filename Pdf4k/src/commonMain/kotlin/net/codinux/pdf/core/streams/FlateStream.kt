@@ -150,28 +150,19 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
 
         if (hdr == 0) {
             // Uncompressed block
-            var byte = str.getByte()
-            if (byte == null) {
-                throw Error("Bad block header in flate stream")
-            }
+            var byte = ensureByte(stream)
 
             var blockLen = byte.toInt()
-            if (str.getByte().also { byte = it } == null) {
-                throw Error("Bad block header in flate stream")
-            }
+            byte = ensureByte(stream)
 
-            blockLen = blockLen or (byte!!.toInt() shl 8)
+            blockLen = blockLen or (byte.toInt() shl 8)
 
-            if (str.getByte().also { byte = it } == null) {
-                throw Error("Bad block header in flate stream")
-            }
+            byte = ensureByte(stream)
 
-            var check = byte!!.toInt()
-            if (str.getByte().also { byte = it } == null) {
-                throw Error("Bad block header in flate stream")
-            }
+            var check = byte.toInt()
+            byte = ensureByte(stream)
 
-            check = check or (byte!!.toInt() shl 8)
+            check = check or (byte.toInt() shl 8)
 
             if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
                 throw Error("Bad uncompressed block length in flate stream")
@@ -191,11 +182,12 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
                 }
             } else {
                 for (n in bufferLength until end) {
-                    if (str.getByte().also { byte = it } == null) {
+                    val byte = stream.getByte()
+                    if (byte == null) {
                         eof = true
                         break
                     }
-                    buffer[n] = byte!!.toUByte()
+                    buffer[n] = byte
                 }
             }
             return
@@ -300,6 +292,10 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             }
         }
     }
+
+    protected open fun ensureByte(stream: StreamType): UByte =
+        stream.getByte()
+            ?: throw Error("Bad block header in flate stream")
 
     protected open fun getBits(numBits: Int): Int {
         var codeSize = this.codeSize
