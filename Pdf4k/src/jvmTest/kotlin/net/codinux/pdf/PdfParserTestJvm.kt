@@ -41,6 +41,7 @@ class PdfParserTestJvm {
             assertThat(file.mimeType?.contains("/") ?: false).isTrue()
             assertThat(file.description).isNotNull()
             assertThat(file.relationship).isNotNull()
+            assertThat(file.modificationDate).isNotNull()
 
             assertThat(file.fileContent).isNotEmpty()
 //            assertThat(file.data).hasSize(file.size ?: -1)
