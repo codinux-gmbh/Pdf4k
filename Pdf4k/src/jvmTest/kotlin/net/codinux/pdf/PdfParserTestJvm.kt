@@ -38,11 +38,15 @@ class PdfParserTestJvm {
         result.embeddedFiles.forEach { file ->
             assertThat(file.filename).isNotEmpty()
             assertThat(file.mimeType?.contains("#") ?: false).isFalse() // assert that PdfName gets decoded correctly
+            assertThat(file.mimeType?.contains("/") ?: false).isTrue()
+            assertThat(file.description).isNotNull()
+            assertThat(file.relationship).isNotNull()
+
             assertThat(file.fileContent).isNotEmpty()
 //            assertThat(file.data).hasSize(file.size ?: -1)
         }
 
-        val invoiceXml = result.embeddedFiles.firstOrNull { it.mimeType?.endsWith("xml") == true }
+        val invoiceXml = result.embeddedFiles.firstOrNull { it.mimeType == "text/xml" }
         assertThat(invoiceXml).isNotNull()
         assertThat(invoiceXml!!.fileContent).isNotEmpty()
 //        assertThat(invoiceXml.data).hasSize(invoiceXml.size ?: -1)
