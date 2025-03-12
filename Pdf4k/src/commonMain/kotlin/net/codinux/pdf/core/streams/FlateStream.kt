@@ -334,6 +334,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             val b = str.getByte()
             if (b == null) {
                 // Premature end of stream. Code might still be valid.
+                // codeSize < codeLen check below guards against incomplete codeVal.
                 break
             }
             codeBuf = codeBuf or (b shl codeSize)
@@ -355,10 +356,8 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
     }
 
     protected open fun generateHuffmanTable(lengths: ByteArray): Pair<IntArray, Int> {
-        val n = lengths.size
-
         // Find max code length
-        var maxLen = lengths.maxOrNull()?.toInt() ?: 0
+        val maxLen = lengths.maxOrNull()?.toInt() ?: 0
 
         // Build the table
         val size = 1 shl maxLen
