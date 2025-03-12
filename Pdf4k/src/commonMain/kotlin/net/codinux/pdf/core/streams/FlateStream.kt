@@ -151,6 +151,38 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         }
     }
 
+    protected open fun readUncompressedBlock(stream: StreamType): UByteArray {
+        val blockLen = combineNextTwoBytes(stream)
+        val check = combineNextTwoBytes(stream)
+
+        if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
+            throw Error("Bad uncompressed block length in flate stream")
+        }
+
+        codeBuf = 0
+        codeSize = 0
+
+        val bufferLength = this.bufferLength
+        val buffer = ensureBuffer(bufferLength + blockLen)
+        val end = bufferLength + blockLen
+        this.bufferLength = end
+
+        if (blockLen == 0) {
+            if (stream.peekByte() == null) {
+                eof = true
+            }
+        } else {
+            val block = stream.getBytes(blockLen)
+            block.copyInto(buffer)
+
+            if (block.size < blockLen) {
+                eof = true
+            }
+        }
+
+        return buffer
+    }
+
     protected open fun readCompressedBlock(hdr: Int) {
         var buffer: UByteArray
         var len: Int
@@ -252,38 +284,6 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
                 }
             }
         }
-    }
-
-    protected open fun readUncompressedBlock(stream: StreamType): UByteArray {
-        val blockLen = combineNextTwoBytes(stream)
-        val check = combineNextTwoBytes(stream)
-
-        if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
-            throw Error("Bad uncompressed block length in flate stream")
-        }
-
-        codeBuf = 0
-        codeSize = 0
-
-        val bufferLength = this.bufferLength
-        val buffer = ensureBuffer(bufferLength + blockLen)
-        val end = bufferLength + blockLen
-        this.bufferLength = end
-
-        if (blockLen == 0) {
-            if (stream.peekByte() == null) {
-                eof = true
-            }
-        } else {
-            val block = stream.getBytes(blockLen)
-            block.copyInto(buffer)
-
-            if (block.size < blockLen) {
-                eof = true
-            }
-        }
-
-        return buffer
     }
 
     protected open fun combineNextTwoBytes(stream: StreamType): Int {
