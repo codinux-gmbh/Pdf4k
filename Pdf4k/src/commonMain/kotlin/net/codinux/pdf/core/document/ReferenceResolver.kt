@@ -1,11 +1,7 @@
 package net.codinux.pdf.core.document
 
-import net.codinux.log.logger
-import net.codinux.pdf.api.EmbeddedFile
 import net.codinux.pdf.core.objects.*
-import net.codinux.pdf.core.parser.ByteStream
 import net.codinux.pdf.core.parser.PdfObjectParser
-import net.codinux.pdf.core.streams.StreamDecoder
 
 open class ReferenceResolver(
     protected val objectParser: PdfObjectParser,
@@ -18,8 +14,6 @@ open class ReferenceResolver(
     protected val compressedReferences: List<PdfRef> = undeletedCrossReferenceEntries.filter { it.isCompressed == true }.map { it.ref }
 
     protected val indirectObjects: MutableMap<PdfRef, PdfObject> = structure.getIndirectObjects()
-
-    protected val log by logger()
 
 
     open fun lookupDict(obj: PdfObject?): PdfDict? = when (obj) {
