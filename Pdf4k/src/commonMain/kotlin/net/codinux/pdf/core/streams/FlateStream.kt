@@ -37,7 +37,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             0xb1001, 0xb1801, 0xc2001, 0xc3001, 0xd4001, 0xd6001
         )
 
-        val fixedLitCodeTab = Pair(intArrayOf(
+        val fixedLitCodeTab = HuffmanTable(9, intArrayOf(
             0x70100, 0x80050, 0x80010, 0x80118, 0x70110, 0x80070, 0x80030, 0x900c0,
             0x70108, 0x80060, 0x80020, 0x900a0, 0x80000, 0x80080, 0x80040, 0x900e0,
             0x70104, 0x80058, 0x80018, 0x90090, 0x70114, 0x80078, 0x80038, 0x900d0,
@@ -102,14 +102,14 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             0x7010b, 0x80067, 0x80027, 0x900af, 0x80007, 0x80087, 0x80047, 0x900ef,
             0x70107, 0x8005f, 0x8001f, 0x9009f, 0x70117, 0x8007f, 0x8003f, 0x900df,
             0x7010f, 0x8006f, 0x8002f, 0x900bf, 0x8000f, 0x8008f, 0x8004f, 0x900ff
-        ), 9)
+        ))
 
-        val fixedDistCodeTab = Pair(intArrayOf(
+        val fixedDistCodeTab = HuffmanTable(5, intArrayOf(
             0x50000, 0x50010, 0x50008, 0x50018, 0x50004, 0x50014, 0x5000c, 0x5001c,
             0x50002, 0x50012, 0x5000a, 0x5001a, 0x50006, 0x50016, 0x5000e, 0x00000,
             0x50001, 0x50011, 0x50009, 0x50019, 0x50005, 0x50015, 0x5000d, 0x5001d,
             0x50003, 0x50013, 0x5000b, 0x5001b, 0x50007, 0x50017, 0x5000f, 0x00000
-        ), 5)
+        ))
     }
 
 
@@ -230,7 +230,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         }
     }
 
-    protected open fun getHuffmanCodes(hdr: Int): Pair<Pair<IntArray, Int>, Pair<IntArray, Int>> =
+    protected open fun getHuffmanCodes(hdr: Int): Pair<HuffmanTable, HuffmanTable> =
         if (hdr == 1) { // Fixed Huffman codes
             fixedLitCodeTab to fixedDistCodeTab
         } else if (hdr == 2) { // Dynamic Huffman codes
@@ -312,15 +312,13 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         return result
     }
 
-    protected open fun getCode(table: Pair<IntArray, Int>): Int {
-        val codes = table.first
-        val maxLen = table.second
+    protected open fun getCode(table: HuffmanTable): Int {
         val str = stream
 
         var codeSize = this.codeSize
         var codeBuf = this.codeBuf
 
-        while (codeSize < maxLen) {
+        while (codeSize < table.maxLength) {
             val b = str.getByte()
             if (b == null) {
                 // Premature end of stream. Code might still be valid.
@@ -331,7 +329,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             codeSize += 8
         }
 
-        val code = codes[codeBuf and ((1 shl maxLen) - 1)]
+        val code = table.codes[codeBuf and ((1 shl table.maxLength) - 1)]
         val codeLen = code shr 16
         val codeVal = code and 0xFFFF
 
@@ -345,7 +343,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         return codeVal
     }
 
-    protected open fun generateHuffmanTable(lengths: ByteArray): Pair<IntArray, Int> {
+    protected open fun generateHuffmanTable(lengths: ByteArray): HuffmanTable {
         // Find max code length
         val maxLen = lengths.maxOrNull()?.toInt() ?: 0
 
@@ -378,7 +376,12 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
             skip = skip shl 1
         }
 
-        return Pair(codes, maxLen)
+        return HuffmanTable(maxLen, codes)
     }
+
+    open class HuffmanTable(
+        val maxLength: Int,
+        val codes: IntArray,
+    )
 
 }
