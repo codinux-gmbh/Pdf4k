@@ -137,10 +137,6 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
 
 
     override fun readBlock() {
-        var buffer: UByteArray
-        var len: Int
-        val str = stream
-
         // Read block header
         var hdr = getBits(3)
         if (hdr and 1 != 0) {
@@ -148,41 +144,17 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         }
         hdr = hdr shr 1
 
-        if (hdr == 0) {
-            // Uncompressed block
-            val blockLen = combineNextTwoBytes(stream)
-            val check = combineNextTwoBytes(stream)
-
-            if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
-                throw Error("Bad uncompressed block length in flate stream")
-            }
-
-            codeBuf = 0
-            codeSize = 0
-
-            var bufferLength = bufferLength
-            buffer = ensureBuffer(bufferLength + blockLen)
-            val end = bufferLength + blockLen
-            bufferLength = end
-
-            if (blockLen == 0) {
-                if (str.peekByte() == null) {
-                    eof = true
-                }
-            } else {
-                for (n in bufferLength until end) {
-                    val byte = stream.getByte()
-                    if (byte == null) {
-                        eof = true
-                        break
-                    }
-                    buffer[n] = byte
-                }
-            }
-            return
+        if (hdr == 0) { // Uncompressed block
+            readUncompressedBlock(stream)
+        } else { // Compressed block
+            readCompressedBlock(hdr)
         }
+    }
 
-        // Compressed block
+    protected open fun readCompressedBlock(hdr: Int) {
+        var buffer: UByteArray
+        var len: Int
+
         val litCodeTable: Pair<IntArray, Int>
         val distCodeTable: Pair<IntArray, Int>
 
@@ -280,6 +252,40 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
                 }
             }
         }
+    }
+
+    protected open fun readUncompressedBlock(stream: StreamType): UByteArray {
+        val blockLen = combineNextTwoBytes(stream)
+        val check = combineNextTwoBytes(stream)
+
+        if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
+            throw Error("Bad uncompressed block length in flate stream")
+        }
+
+        codeBuf = 0
+        codeSize = 0
+
+        var bufferLength = bufferLength
+        val buffer = ensureBuffer(bufferLength + blockLen)
+        val end = bufferLength + blockLen
+        bufferLength = end
+
+        if (blockLen == 0) {
+            if (stream.peekByte() == null) {
+                eof = true
+            }
+        } else {
+            for (n in bufferLength until end) {
+                val byte = stream.getByte()
+                if (byte == null) {
+                    eof = true
+                    break
+                }
+                buffer[n] = byte
+            }
+        }
+
+        return buffer
     }
 
     protected open fun combineNextTwoBytes(stream: StreamType): Int {
