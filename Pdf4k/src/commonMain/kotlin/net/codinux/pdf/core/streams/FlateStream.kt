@@ -244,7 +244,7 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
 
         // Decompression loop
         buffer = this.buffer
-        var limit = buffer?.size ?: 0
+        var limit = buffer.size
         var pos = bufferLength
 
         while (true) {

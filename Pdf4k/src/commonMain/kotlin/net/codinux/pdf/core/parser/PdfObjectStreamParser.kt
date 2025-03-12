@@ -76,7 +76,7 @@ open class PdfObjectStreamParser(rawStream: PdfRawStream, decoder: StreamDecoder
     }
 
     protected open fun parseOffsetsAndObjectNumbers(): List<Pair<Int, Int>> {
-        return (0..<objectCount).map { index ->
+        return (0..<objectCount).map {
             skipWhitespaceAndComments()
             val objectNumber = parseRawInt()
 

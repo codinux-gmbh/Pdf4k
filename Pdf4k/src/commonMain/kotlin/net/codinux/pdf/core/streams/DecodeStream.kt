@@ -61,7 +61,7 @@ abstract class DecodeStream(maybeMinBufferLength: Int? = null) : StreamType {
     }
 
     override fun getBytes(length: Int): UByteArray {
-        var end = -1
+        var end: Int
         val pos = this.pos
 
         if (length <= 0) {

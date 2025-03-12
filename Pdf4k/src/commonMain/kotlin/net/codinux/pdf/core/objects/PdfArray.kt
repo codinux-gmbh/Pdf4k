@@ -8,6 +8,7 @@ class PdfArray(val items: List<PdfObject>) : PdfObject {
         if (index in items.indices) items[index]
         else null
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : PdfObject> getAs(index: Int): T? = get(index) as? T
 
     override fun toString() = items.joinToString()

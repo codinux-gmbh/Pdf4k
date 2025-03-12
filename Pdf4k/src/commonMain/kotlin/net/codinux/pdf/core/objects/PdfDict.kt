@@ -6,8 +6,10 @@ open class PdfDict(val items: Map<PdfName, PdfObject>): PdfObject {
 
     fun get(name: String): PdfObject? = items.entries.firstOrNull { it.key.name == name }?.value
 
+    @Suppress("UNCHECKED_CAST")
     fun <T: PdfObject> getAs(name: PdfName): T? = get(name) as? T
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : PdfObject> getAs(name: String): T? = get(name) as? T
 
 

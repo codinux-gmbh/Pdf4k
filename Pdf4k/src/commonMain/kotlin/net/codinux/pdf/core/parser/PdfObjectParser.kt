@@ -212,7 +212,7 @@ open class PdfObjectParser(
         }
 
         val start = bytes.offset()
-        var end: Int = -1
+        var end: Int
 
         val length = dict.get("Length")
         if (length is PdfNumber) {
