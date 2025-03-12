@@ -9,8 +9,10 @@ open class TextDecoder {
     companion object {
         val Instance = TextDecoder()
 
+        private val Utf16Be = UTF16Charset(false)
+
         // Mapping from PDFDocEncoding to Unicode code point
-        val PdfDocEncodingToUnicode = buildMap<UByte, UByte> {
+        private val PdfDocEncodingToUnicode = buildMap<UByte, UByte> {
             // Initialize the code points which are the same
             (0..255).forEach { codePoint ->
                 put(codePoint.toUByte(), codePoint.toUByte())
@@ -153,7 +155,7 @@ open class TextDecoder {
         text.size >= 2 && text[0] == 254.toUByte() && text[1] == 255.toUByte()
 
     protected open fun decodeUtf16Be(text: UByteArray): String =
-        text.toByteArray().decodeToString(startIndex = 2) // TODO: decode UTF-16
+        Utf16Be.decode(text, 2)
 
 
     /**
