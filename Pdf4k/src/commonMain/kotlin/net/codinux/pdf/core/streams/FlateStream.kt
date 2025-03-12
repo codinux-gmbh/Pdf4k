@@ -265,23 +265,21 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         codeBuf = 0
         codeSize = 0
 
-        var bufferLength = bufferLength
+        val bufferLength = this.bufferLength
         val buffer = ensureBuffer(bufferLength + blockLen)
         val end = bufferLength + blockLen
-        bufferLength = end
+        this.bufferLength = end
 
         if (blockLen == 0) {
             if (stream.peekByte() == null) {
                 eof = true
             }
         } else {
-            for (n in bufferLength until end) {
-                val byte = stream.getByte()
-                if (byte == null) {
-                    eof = true
-                    break
-                }
-                buffer[n] = byte
+            val block = stream.getBytes(blockLen)
+            block.copyInto(buffer)
+
+            if (block.size < blockLen) {
+                eof = true
             }
         }
 
