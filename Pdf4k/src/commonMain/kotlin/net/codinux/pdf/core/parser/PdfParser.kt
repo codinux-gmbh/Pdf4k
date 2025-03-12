@@ -282,12 +282,12 @@ open class PdfParser(
     }
 
     protected open fun mapTrailerInfo(dict: PdfDict, context: PdfStructure) = TrailerInfo(
-        size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0,
-        root = dict.get(PdfName.Root) ?: context.trailerInfo?.root,
-        encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt,
-        info = dict.get(PdfName.Info) ?: context.trailerInfo?.info,
-        id = dict.getAs(PdfName.ID) ?: context.trailerInfo?.id,
-        previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(),
+        size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() ?: 0, // /Size is required to be a direct object
+        root = dict.get(PdfName.Root) ?: context.trailerInfo?.root, // /Root is required to be an indirect object
+        encrypt = dict.get(PdfName.Encrypt) ?: context.trailerInfo?.encrypt, // can be direct or indirect
+        info = dict.get(PdfName.Info) ?: context.trailerInfo?.info, // /Info was required to be an indirect object but isn't anymore (actually it's deprecated in PDF 2.0)
+        id = dict.getAs(PdfName.ID) ?: context.trailerInfo?.id, // can be direct or indirect
+        previousCrossReferenceSectionByteOffset = dict.getAs<PdfNumber>(PdfName.Prev)?.value?.toInt(), // shall be a direct object
     )
 
     protected open fun maybeParseTrailer(context: PdfStructure): PdfTrailer? {

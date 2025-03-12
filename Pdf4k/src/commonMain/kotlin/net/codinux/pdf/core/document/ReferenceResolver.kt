@@ -40,6 +40,30 @@ open class ReferenceResolver(
 
     open fun lookupNumber(ref: PdfRef): PdfNumber? = lookup(ref) as? PdfNumber
 
+    open fun lookupString(obj: PdfObject?): PdfString? = when (obj) {
+        is PdfString -> obj
+        is PdfRef -> lookupString(obj)
+        else -> null
+    }
+
+    open fun lookupString(ref: PdfRef): PdfString? = lookup(ref) as? PdfString
+
+    open fun lookupHexString(obj: PdfObject?): PdfHexString? = when (obj) {
+        is PdfHexString -> obj
+        is PdfRef -> lookupHexString(obj)
+        else -> null
+    }
+
+    open fun lookupHexString(ref: PdfRef): PdfHexString? = lookup(ref) as? PdfHexString
+
+    open fun lookupName(obj: PdfObject?): PdfName? = when (obj) {
+        is PdfName -> obj
+        is PdfRef -> lookupName(obj)
+        else -> null
+    }
+
+    open fun lookupName(ref: PdfRef): PdfName? = lookup(ref) as? PdfName
+
     open fun lookupStream(obj: PdfObject?): PdfRawStream? = when (obj) {
         is PdfRawStream -> obj
         is PdfRef -> lookupStream(obj)

@@ -70,7 +70,7 @@ open class PdfDataMapper(
             val dict = embeddedFileStream.dict
             val params = resolver.lookupDict(dict.get("Params"))
             val mimeType = decodeText(dict, "Subtype")
-            val md5Hash = params?.getAs<PdfString>("CheckSum")?.value
+            val md5Hash = resolver.lookupString(params?.get("CheckSum"))?.value
             val creationDate = decodeDate(params, PdfName.CreationDate)
             val modificationDate = decodeDate(params, PdfName.ModDate)
 

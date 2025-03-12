@@ -55,10 +55,10 @@ open class PdfObjectStreamParser(rawStream: PdfRawStream, decoder: StreamDecoder
 
     protected val dict = rawStream.dict
 
-    protected val firstOffset: Int = dict.getAs<PdfNumber>("First")?.value?.toInt()
-        ?: throw IllegalStateException("PdfRawStream dictionary needs to contain key /Title with a PdfNumber value")
+    protected val firstOffset: Int = dict.getAs<PdfNumber>("First")?.value?.toInt() // TODO: but can also be an indirect object
+        ?: throw IllegalStateException("PdfRawStream dictionary needs to contain key /First with a PdfNumber value")
 
-    protected val objectCount: Int = dict.getAs<PdfNumber>("N")?.value?.toInt()
+    protected val objectCount: Int = dict.getAs<PdfNumber>("N")?.value?.toInt() // TODO: but can also be an indirect object
             ?: throw IllegalStateException("PdfRawStream dictionary needs to contain key /N with a PdfNumber value")
 
 

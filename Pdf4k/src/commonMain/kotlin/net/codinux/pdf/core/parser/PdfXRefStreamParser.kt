@@ -12,12 +12,12 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
 
 
     open fun parseXrefStream(referencePool: MutableMap<String, PdfRef>): PdfCrossRefSection {
-        val indices = dict.get(PdfName.Index)
+        val indices = dict.get(PdfName.Index) // /Index and its items shall be a direct object (same with /W)
 
         val subsections = if (indices !is PdfArray) {
             // The number one greater than the highest object number used in this section, or in any section for which
             // this is an update. It is equivalent to the Size entry in a trailer dictionary.
-            val size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() // TODO: what if dict does not contain required Size entry?
+            val size = dict.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() // TODO: what if dict does not contain required Size entry or if it's an indirect object?
             listOf(PdfCrossReferenceSubsection(0, size ?: 0))
         } else {
             if (indices.size == 0 || indices.size % 2 != 0) {

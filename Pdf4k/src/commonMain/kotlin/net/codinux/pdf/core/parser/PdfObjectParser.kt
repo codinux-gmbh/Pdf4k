@@ -213,7 +213,7 @@ open class PdfObjectParser(
 
         val start = bytes.offset()
 
-        val length = dict.get(PdfName.Length)
+        val length = dict.get(PdfName.Length) // TODO: the problem here is it may be a PdfRef
         val end = if (length is PdfNumber) {
             val end = start + length.value.toInt()
             bytes.moveTo(end)

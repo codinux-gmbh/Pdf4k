@@ -15,7 +15,7 @@ open class StreamDecoder {
         var stream: StreamType = Stream(rawStream.contents)
 
         val filter = rawStream.dict.get(PdfName.Filter)
-        val decodeParameter = rawStream.dict.get("DecodeParms")
+        val decodeParameter = rawStream.dict.get("DecodeParms") // TODO: DecodeParms can also be an indirect object
 
         return if (filter is PdfName) {
             decodeStream(stream, filter, decodeParameter as? PdfDict)
