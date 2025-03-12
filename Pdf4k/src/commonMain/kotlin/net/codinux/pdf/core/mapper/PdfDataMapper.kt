@@ -92,7 +92,7 @@ open class PdfDataMapper(
                 isCompressed,
                 if (isCompressed) streamLength else null,
                 // /Params -> /Size: (Optional) The size of the uncompressed embedded file, in bytes
-                if (isCompressed) params?.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() else streamLength,
+                if (isCompressed) resolver.lookupNumber(params?.get(PdfName.Size))?.value?.toInt() else streamLength,
 
                 embeddedFileStream,
                 decoder
