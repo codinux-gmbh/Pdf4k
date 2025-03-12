@@ -163,8 +163,8 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
         codeSize = 0
 
         val bufferLength = this.bufferLength
-        val buffer = ensureBuffer(bufferLength + blockLen)
         val end = bufferLength + blockLen
+        val buffer = ensureBuffer(end)
         this.bufferLength = end
 
         if (blockLen == 0) {
