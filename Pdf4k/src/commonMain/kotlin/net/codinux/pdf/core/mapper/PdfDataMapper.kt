@@ -4,7 +4,6 @@ import net.codinux.log.logger
 import net.codinux.pdf.api.EmbeddedFile
 import net.codinux.pdf.core.document.ReferenceResolver
 import net.codinux.pdf.core.objects.*
-import net.codinux.pdf.core.parser.ByteStream
 import net.codinux.pdf.core.streams.StreamDecoder
 
 open class PdfDataMapper(
@@ -80,26 +79,17 @@ open class PdfDataMapper(
 
             EmbeddedFile(
                 unicodeFilename ?: filename ?: "", // A PDF reader shall use the value of the UF key, when present, instead of the F key.
-                readBytesFromStream(embeddedFileStream),
                 size?.value?.toInt(),
                 description,
                 mimeType,
                 md5Hash,
                 relationship,
                 creationDate,
-                modificationDate
+                modificationDate,
+
+                embeddedFileStream,
+                decoder
             )
-        }
-    }
-
-
-    protected open fun readBytesFromStream(embeddedFileStream: PdfRawStream): UByteArray {
-        val isCompressed = embeddedFileStream.dict.get(PdfName.Filter) != null
-
-        return if (isCompressed == false) {
-            embeddedFileStream.contents
-        } else {
-            ByteStream.fromPdfRawStream(embeddedFileStream, decoder).getBytes()
         }
     }
 
