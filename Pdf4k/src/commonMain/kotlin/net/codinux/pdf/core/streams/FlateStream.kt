@@ -150,19 +150,8 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
 
         if (hdr == 0) {
             // Uncompressed block
-            var byte = ensureByte(stream)
-
-            var blockLen = byte.toInt()
-            byte = ensureByte(stream)
-
-            blockLen = blockLen or (byte.toInt() shl 8)
-
-            byte = ensureByte(stream)
-
-            var check = byte.toInt()
-            byte = ensureByte(stream)
-
-            check = check or (byte.toInt() shl 8)
+            val blockLen = combineNextTwoBytes(stream)
+            val check = combineNextTwoBytes(stream)
 
             if (check != (blockLen.inv() and 0xFFFF) && !(blockLen == 0 && check == 0)) {
                 throw Error("Bad uncompressed block length in flate stream")
@@ -291,6 +280,13 @@ open class FlateStream(protected val stream: StreamType, maybeLength: Int? = nul
                 }
             }
         }
+    }
+
+    protected open fun combineNextTwoBytes(stream: StreamType): Int {
+        val lowerOrderByte = ensureByte(stream)
+        val higherOrderByte = ensureByte(stream)
+
+        return lowerOrderByte.toInt() or (higherOrderByte.toInt() shl 8)
     }
 
     protected open fun ensureByte(stream: StreamType): UByte =
