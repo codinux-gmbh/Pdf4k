@@ -33,8 +33,6 @@ class PdfParserTestJvm {
         assertThat(result.lowLevelDetails.lastModifiedHash).isNotNull().isNotEmpty()
 
         assertThat(result.embeddedFiles).isNotEmpty()
-//        val invoiceXml = result.embeddedFiles.firstOrNull { it.mimeType  }
-
         result.embeddedFiles.forEach { file ->
             assertThat(file.filename).isNotEmpty()
             assertThat(file.mimeType?.contains("#") ?: false).isFalse() // assert that PdfName gets decoded correctly
@@ -50,10 +48,12 @@ class PdfParserTestJvm {
         val invoiceXml = result.embeddedFiles.firstOrNull { it.mimeType == "text/xml" }
         assertThat(invoiceXml).isNotNull()
         assertThat(invoiceXml!!.fileContent).isNotEmpty()
-//        assertThat(invoiceXml.data).hasSize(invoiceXml.size ?: -1)
 
         val xml = invoiceXml.fileContentAsString
         assertThat(xml).contains("<?xml ")
+        invoiceXml.size?.let { size ->
+            assertThat(invoiceXml.fileContent.size).isEqualTo(size)
+        }
     }
 
 

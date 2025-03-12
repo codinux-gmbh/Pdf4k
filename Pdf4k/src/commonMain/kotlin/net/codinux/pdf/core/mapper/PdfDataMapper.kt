@@ -69,23 +69,30 @@ open class PdfDataMapper(
 
             val dict = embeddedFileStream.dict
             val params = resolver.lookupDict(dict.get("Params"))
-            val size = params?.getAs<PdfNumber>(PdfName.Size)
-                ?: dict.getAs<PdfNumber>(PdfName.Length)
-                ?: dict.getAs<PdfNumber>(PdfName.Size) // 'Length' is correct, some use 'Size'
             val mimeType = decodeText(dict, "Subtype")
             val md5Hash = params?.getAs<PdfString>("CheckSum")?.value
             val creationDate = decodeDate(params, PdfName.CreationDate)
             val modificationDate = decodeDate(params, PdfName.ModDate)
 
+            val isCompressed = embeddedFileStream.dict.get(PdfName.Filter) != null
+            // dict -> /Length: The number of bytes in this stream. If the stream is compressed then this is the number of compressed bytes
+            val streamLength = (resolver.lookupNumber(dict.get(PdfName.Length))
+                ?: resolver.lookupNumber(dict.get(PdfName.Size))) // 'Length' is correct, some use 'Size'
+                ?.value?.toInt()
+
             EmbeddedFile(
                 unicodeFilename ?: filename ?: "", // A PDF reader shall use the value of the UF key, when present, instead of the F key.
-                size?.value?.toInt(),
                 description,
                 mimeType,
                 md5Hash,
                 relationship,
                 creationDate,
                 modificationDate,
+
+                isCompressed,
+                if (isCompressed) streamLength else null,
+                // /Params -> /Size: (Optional) The size of the uncompressed embedded file, in bytes
+                if (isCompressed) params?.getAs<PdfNumber>(PdfName.Size)?.value?.toInt() else streamLength,
 
                 embeddedFileStream,
                 decoder

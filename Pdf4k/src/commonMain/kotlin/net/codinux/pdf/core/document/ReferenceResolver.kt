@@ -38,6 +38,14 @@ open class ReferenceResolver(
 
     open fun lookupArray(ref: PdfRef): PdfArray? = lookup(ref) as? PdfArray
 
+    open fun lookupNumber(obj: PdfObject?): PdfNumber? = when (obj) {
+        is PdfNumber -> obj
+        is PdfRef -> lookupNumber(obj)
+        else -> null
+    }
+
+    open fun lookupNumber(ref: PdfRef): PdfNumber? = lookup(ref) as? PdfNumber
+
     open fun lookupStream(obj: PdfObject?): PdfRawStream? = when (obj) {
         is PdfRawStream -> obj
         is PdfRef -> lookupStream(obj)
