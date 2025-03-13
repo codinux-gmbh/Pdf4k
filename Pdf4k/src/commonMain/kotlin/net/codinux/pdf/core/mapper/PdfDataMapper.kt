@@ -79,9 +79,12 @@ open class PdfDataMapper(
             val streamLength = (resolver.lookupNumber(dict.get(PdfName.Length))
                 ?: resolver.lookupNumber(dict.get(PdfName.Size))) // 'Length' is correct, some use 'Size'
                 ?.value?.toInt()
+            // /Params -> /Size: (Optional) The size of the uncompressed embedded file, in bytes
+            val size = if (isCompressed) resolver.lookupNumber(params?.get(PdfName.Size))?.value?.toInt() else streamLength
 
             EmbeddedFile(
                 unicodeFilename ?: filename ?: "", // A PDF reader shall use the value of the UF key, when present, instead of the F key.
+                size,
                 description,
                 mimeType,
                 md5Hash,
@@ -90,10 +93,6 @@ open class PdfDataMapper(
                 modificationDate,
 
                 isCompressed,
-                if (isCompressed) streamLength else null,
-                // /Params -> /Size: (Optional) The size of the uncompressed embedded file, in bytes
-                if (isCompressed) resolver.lookupNumber(params?.get(PdfName.Size))?.value?.toInt() else streamLength,
-
                 embeddedFileStream,
                 decoder
             )

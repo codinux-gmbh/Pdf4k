@@ -7,6 +7,7 @@ import net.codinux.pdf.core.streams.StreamDecoder
 @OptIn(ExperimentalUnsignedTypes::class)
 open class EmbeddedFile(
     val filename: String,
+    val size: Int? = null,
     val description: String? = null,
     val mimeType: String? = null,
     val md5Hash: String? = null,
@@ -14,15 +15,10 @@ open class EmbeddedFile(
     val creationDate: String? = null, // TODO: map to Instant
     val modificationDate: String? = null, // TODO: map to Instant
 
-    val isCompressed: Boolean,
-    val compressedSize: Int? = null,
-    val uncompressedSize: Int? = null,
-
+    protected val isCompressed: Boolean,
     protected val embeddedFileStream: PdfRawStream,
     protected val decoder: StreamDecoder = StreamDecoder.Instance
 ) {
-
-    val size: Int? = if (isCompressed) uncompressedSize else compressedSize
 
     val fileContent: ByteArray by lazy {
         if (isCompressed == false) {
