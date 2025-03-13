@@ -1,7 +1,13 @@
 
 allprojects {
     group = "net.codinux.pdf"
-    version = "1.0.0-SNAPSHOT"
+    version = "0.5.0-SNAPSHOT"
+
+
+    ext["sourceCodeRepositoryBaseUrl"] = "github.com/codinux-gmbh/Pdf4k"
+
+    ext["projectDescription"] = "A very basic implementation for parsing PDF files for all Kotlin Multiplatform targets"
+
 
     repositories {
         mavenCentral()

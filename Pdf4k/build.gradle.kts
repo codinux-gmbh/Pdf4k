@@ -107,3 +107,8 @@ kotlin {
 tasks.named<Test>("jvmTest") {
     useJUnitPlatform() // use JUnit 5, required for @ParameterizedTests
 }
+
+
+ext["customArtifactId"] = "pdf4k"
+
+apply(from = "../gradle/scripts/publish-codinux.gradle.kts")
