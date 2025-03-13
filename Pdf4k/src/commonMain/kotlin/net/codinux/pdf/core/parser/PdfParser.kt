@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package net.codinux.pdf.core.parser
 
 import net.codinux.pdf.api.PdfDocument
@@ -13,14 +15,13 @@ import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.syntax.CharCodes
 import net.codinux.pdf.core.syntax.Keywords
 
-@OptIn(ExperimentalUnsignedTypes::class)
 open class PdfParser(
-    pdfBytes: UByteArray,
+    pdfBytes: ByteArray,
     protected val throwOnInvalidObject: Boolean = false,
     capNumbers: Boolean = false,
     protected val streamDecoder: StreamDecoder = StreamDecoder.Instance,
     textDecoder: TextDecoder = TextDecoder.Instance
-) : PdfObjectParser(ByteStream(pdfBytes), capNumbers, textDecoder) {
+) : PdfObjectParser(ByteStream(pdfBytes.toUByteArray()), capNumbers, textDecoder) {
 
     /**
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be

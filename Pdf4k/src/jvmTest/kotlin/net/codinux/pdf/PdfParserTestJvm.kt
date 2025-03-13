@@ -10,13 +10,12 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Path
 import kotlin.io.path.*
 
-@OptIn(ExperimentalUnsignedTypes::class)
 class PdfParserTestJvm {
 
     @ParameterizedTest
     @MethodSource("eInvoicePdfs")
     fun canReadEInvoicingFile(invoicePdf: Path) {
-        val underTest = PdfParser(invoicePdf.readBytes().toUByteArray())
+        val underTest = PdfParser(invoicePdf.readBytes())
 
         val result = underTest.parseDocument()
 
