@@ -1,4 +1,4 @@
-package net.codinux.pdf.test
+package net.codinux.pdf.examples
 
 object PdfTestData {
 

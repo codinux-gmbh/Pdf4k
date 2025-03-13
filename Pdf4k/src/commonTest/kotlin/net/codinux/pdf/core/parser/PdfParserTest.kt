@@ -11,7 +11,7 @@ class PdfParserTest {
 
     @Test
     fun parseHeaderEagerly_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_7)
 
         val result = underTest.parseDocumentEagerly()
 
@@ -20,7 +20,7 @@ class PdfParserTest {
 
     @Test
     fun parseHeader_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_7)
 
         val result = underTest.parseDocument()
 
@@ -33,7 +33,7 @@ class PdfParserTest {
 
     @Test
     fun parseHeaderEagerly_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_4_Uncompressed)
 
         val result = underTest.parseDocumentEagerly()
 
@@ -42,7 +42,7 @@ class PdfParserTest {
 
     @Test
     fun parseHeader_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_4_Uncompressed)
 
         val result = underTest.parseDocument()
 
@@ -56,7 +56,7 @@ class PdfParserTest {
 
     @Test
     fun parseTrailerDictionaryEagerly_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_7)
 
         val result = underTest.parseDocumentEagerly()
 
@@ -65,7 +65,7 @@ class PdfParserTest {
 
     @Test
     fun parseTrailerDictionary_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_7)
 
         val result = underTest.parseDocument()
 
@@ -85,7 +85,7 @@ class PdfParserTest {
 
     @Test
     fun parseTrailerDictionaryEagerly_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_4_Uncompressed)
 
         val result = underTest.parseDocumentEagerly()
 
@@ -94,7 +94,7 @@ class PdfParserTest {
 
     @Test
     fun parseTrailerDictionary_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_4_Uncompressed)
 
         val result = underTest.parseDocument()
 
@@ -115,7 +115,7 @@ class PdfParserTest {
 
     @Test
     fun parseCrossRefTableEagerly_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_4_Uncompressed)
 
         val result = underTest.parseDocumentEagerly()
 
@@ -124,7 +124,7 @@ class PdfParserTest {
 
     @Test
     fun parseCrossRefTable_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_4_Uncompressed)
 
         val result = underTest.parseDocument()
 
@@ -145,7 +145,7 @@ class PdfParserTest {
 
     @Test
     fun parseCrossRefStreamEagerly_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_7)
 
         val result = underTest.parseDocumentEagerly()
 
@@ -154,7 +154,7 @@ class PdfParserTest {
 
     @Test
     fun parseCrossRefStream_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
+        val underTest = PdfParser(PdfTestData.EmptyPdf_v1_7)
 
         val result = underTest.parseDocument()
 
