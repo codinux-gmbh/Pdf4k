@@ -27,7 +27,7 @@ open class PdfParser(
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be
      * quite time-consuming for large PDFs.
      */
-    open fun parseDocument(): PdfDocument {
+    open fun parseDocumentEagerly(): PdfDocument {
         val context = PdfStructure()
         context.header = parseHeader()
 
@@ -46,9 +46,12 @@ open class PdfParser(
     }
 
     /**
-     * Tries to parse only the most elementary bytes of a PDF.
+     * Tries to parse only the most elementary bytes of a PDF (that is the PDF header, Cross-reference table or stream
+     * and, if available, to trailer dictionary).
+     *
+     * All other objects are parsed lazily when called the first time.
      */
-    open fun parseDocumentEfficiently(): PdfDocument {
+    open fun parseDocument(): PdfDocument {
         val context = PdfStructure()
         context.header = parseHeader()
 

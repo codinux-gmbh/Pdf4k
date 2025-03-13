@@ -7,8 +7,16 @@ import net.codinux.pdf.core.objects.PdfRef
 import net.codinux.pdf.test.PdfTestData
 import kotlin.test.Test
 
-@OptIn(ExperimentalUnsignedTypes::class)
 class PdfParserTest {
+
+    @Test
+    fun parseHeaderEagerly_Pdf_1_7() {
+        val underTest = PdfParser(PdfTestData.Empty)
+
+        val result = underTest.parseDocumentEagerly()
+
+        assertHeader_1_7(result)
+    }
 
     @Test
     fun parseHeader_Pdf_1_7() {
@@ -19,17 +27,17 @@ class PdfParserTest {
         assertHeader_1_7(result)
     }
 
-    @Test
-    fun parseHeaderEfficiently_Pdf_1_7() {
-        val underTest = PdfParser(PdfTestData.Empty)
-
-        val result = underTest.parseDocumentEfficiently()
-
-        assertHeader_1_7(result)
-    }
-
     private fun assertHeader_1_7(result: PdfDocument) {
         assertThat(result.pdfVersion).isEqualTo(1.7f)
+    }
+
+    @Test
+    fun parseHeaderEagerly_Pdf_1_4() {
+        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
+
+        val result = underTest.parseDocumentEagerly()
+
+        assertHeader_1_4(result)
     }
 
     @Test
@@ -41,34 +49,25 @@ class PdfParserTest {
         assertHeader_1_4(result)
     }
 
-    @Test
-    fun parseHeaderEfficiently_Pdf_1_4() {
-        val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
-
-        val result = underTest.parseDocumentEfficiently()
-
-        assertHeader_1_4(result)
-    }
-
     private fun assertHeader_1_4(result: PdfDocument) {
         assertThat(result.pdfVersion).isEqualTo(1.4f)
     }
 
 
     @Test
-    fun parseTrailerDictionary_Pdf_1_7() {
+    fun parseTrailerDictionaryEagerly_Pdf_1_7() {
         val underTest = PdfParser(PdfTestData.Empty)
 
-        val result = underTest.parseDocument()
+        val result = underTest.parseDocumentEagerly()
 
         assertTrailerDictionary_1_7(result)
     }
 
     @Test
-    fun parseTrailerDictionaryEfficiently_Pdf_1_7() {
+    fun parseTrailerDictionary_Pdf_1_7() {
         val underTest = PdfParser(PdfTestData.Empty)
 
-        val result = underTest.parseDocumentEfficiently()
+        val result = underTest.parseDocument()
 
         assertTrailerDictionary_1_7(result)
     }
@@ -85,19 +84,19 @@ class PdfParserTest {
     }
 
     @Test
-    fun parseTrailerDictionary_Pdf_1_4() {
+    fun parseTrailerDictionaryEagerly_Pdf_1_4() {
         val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
 
-        val result = underTest.parseDocument()
+        val result = underTest.parseDocumentEagerly()
 
         assertTrailerDictionary_1_4(result)
     }
 
     @Test
-    fun parseTrailerDictionaryEfficiently_Pdf_1_4() {
+    fun parseTrailerDictionary_Pdf_1_4() {
         val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
 
-        val result = underTest.parseDocumentEfficiently()
+        val result = underTest.parseDocument()
 
         assertTrailerDictionary_1_4(result)
     }
@@ -115,19 +114,19 @@ class PdfParserTest {
 
 
     @Test
-    fun parseCrossRefTable_Pdf_1_4() {
+    fun parseCrossRefTableEagerly_Pdf_1_4() {
         val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
 
-        val result = underTest.parseDocument()
+        val result = underTest.parseDocumentEagerly()
 
         assertCrossRefStream_1_4(result)
     }
 
     @Test
-    fun parseCrossRefTableEfficiently_Pdf_1_4() {
+    fun parseCrossRefTable_Pdf_1_4() {
         val underTest = PdfParser(PdfTestData.Empty_v1_4_Uncompressed)
 
-        val result = underTest.parseDocumentEfficiently()
+        val result = underTest.parseDocument()
 
         assertCrossRefStream_1_4(result)
     }
@@ -145,19 +144,19 @@ class PdfParserTest {
     }
 
     @Test
-    fun parseCrossRefStream_Pdf_1_7() {
+    fun parseCrossRefStreamEagerly_Pdf_1_7() {
         val underTest = PdfParser(PdfTestData.Empty)
 
-        val result = underTest.parseDocument()
+        val result = underTest.parseDocumentEagerly()
 
         assertCrossRefStream_1_7(result)
     }
 
     @Test
-    fun parseCrossRefStreamEfficiently_Pdf_1_7() {
+    fun parseCrossRefStream_Pdf_1_7() {
         val underTest = PdfParser(PdfTestData.Empty)
 
-        val result = underTest.parseDocumentEfficiently()
+        val result = underTest.parseDocument()
 
         assertCrossRefStream_1_7(result)
     }
