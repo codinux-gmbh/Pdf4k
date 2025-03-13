@@ -5,12 +5,14 @@ import net.codinux.pdf.core.parser.PdfParser
 class ReadPdfExamples {
 
     fun read() {
-        val pdfBytes = PdfTestData.EmptyPdf_v1_7 // get bytes of PDF files
+        val pdfBytes = PdfTestData.EmptyPdf_v1_7 // get bytes of PDF file
 
         val parser = PdfParser(pdfBytes)
 
+        // parses only basic PDF structure (and is therefor very fast), all other objects when needed the first time
         val document = parser.parseDocument()
-        // val document = parser.parseDocumentEagerly() // or if you like to read all PDF objects right upfront use parseDocumentEagerly()
+        // or if you like to read all PDF objects upfront use parseDocumentEagerly()
+        // val document = parser.parseDocumentEagerly()
 
         println("PDF version is ${document.pdfVersion}")
         println("Is encrypted? ${document.isEncrypted}")
