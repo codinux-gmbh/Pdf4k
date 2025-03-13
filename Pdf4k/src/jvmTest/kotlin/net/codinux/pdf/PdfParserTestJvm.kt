@@ -42,7 +42,7 @@ class PdfParserTestJvm {
             assertThat(file.modificationDate).isNotNull()
 
             assertThat(file.fileContent).isNotEmpty()
-            file.uncompressedSize?.let { size ->
+            file.size?.let { size ->
                 assertThat(file.fileContent.size).isEqualTo(size)
             }
         }
