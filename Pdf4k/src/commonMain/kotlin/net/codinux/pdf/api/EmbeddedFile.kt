@@ -24,8 +24,6 @@ open class EmbeddedFile(
 
     val size: Int? = if (isCompressed) uncompressedSize else compressedSize
 
-    val compressedBytes by lazy { embeddedFileStream.contents }
-
     val fileContent: ByteArray by lazy {
         if (isCompressed == false) {
             embeddedFileStream.contents
