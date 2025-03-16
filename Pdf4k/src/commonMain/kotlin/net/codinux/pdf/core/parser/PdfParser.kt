@@ -19,9 +19,9 @@ open class PdfParser(
     pdfBytes: ByteArray,
     protected val throwOnInvalidObject: Boolean = false,
     capNumbers: Boolean = false,
-    protected val streamDecoder: StreamDecoder = StreamDecoder.Instance,
+    streamDecoder: StreamDecoder = StreamDecoder.Instance,
     textDecoder: TextDecoder = TextDecoder.Instance
-) : PdfObjectParser(ByteStream(pdfBytes.toUByteArray()), capNumbers, textDecoder) {
+) : PdfObjectParser(ByteStream(pdfBytes.toUByteArray()), capNumbers, streamDecoder, textDecoder) {
 
     /**
      * Parses a PDF file byte by byte, therefore also objects that may are not needed for your requirements. Can be
@@ -148,10 +148,7 @@ open class PdfParser(
         matchKeyword(Keywords.Endobj)
 
         val rawStreamType = if (pdfObject is PdfRawStream) pdfObject.dict.getAs<PdfName>(PdfName.Type)?.name else null
-        if (rawStreamType == "ObjStm") {
-            val indirectObjects = PdfObjectStreamParser(pdfObject as PdfRawStream, streamDecoder).parseIndirectObjects(referencePool)
-            context.addIndirectObjects(indirectObjects)
-        } else if (rawStreamType == "XRef") {
+        if (rawStreamType == "XRef") {
             val xrefStream = pdfObject as PdfRawStream
 
             // non-classic PDFs - that are PDF 1.5+ PDFs with cross-reference stream - store the Trailer info in
@@ -160,6 +157,8 @@ open class PdfParser(
 
             val xrefStreamParser = PdfXRefStreamParser(xrefStream, streamDecoder)
             context.crossReferenceSection = xrefStreamParser.parseXrefStream(referencePool)
+        } else if (pdfObject is PdfObjectStream) {
+            context.addIndirectObjects(pdfObject.containingObjects)
         } else {
             context.addIndirectObject(ref, pdfObject)
         }

@@ -5,6 +5,7 @@ import net.codinux.pdf.core.PdfStreamParsingError
 import net.codinux.pdf.core.UnbalancedParenthesisError
 import net.codinux.pdf.core.mapper.TextDecoder
 import net.codinux.pdf.core.objects.*
+import net.codinux.pdf.core.streams.StreamDecoder
 import net.codinux.pdf.core.structures.PdfCatalog
 import net.codinux.pdf.core.structures.PdfPageLeaf
 import net.codinux.pdf.core.structures.PdfPageTree
@@ -15,6 +16,7 @@ import net.codinux.pdf.core.syntax.Keywords
 open class PdfObjectParser(
     bytes: ByteStream,
     capNumbers: Boolean = false,
+    protected val streamDecoder: StreamDecoder = StreamDecoder.Instance,
     protected val textDecoder: TextDecoder = TextDecoder.Instance
 ) : BaseParser(bytes, capNumbers) {
 
@@ -230,8 +232,14 @@ open class PdfObjectParser(
         }
 
         val contents = bytes.slice(start, end)
+        val stream = PdfRawStream(dict, contents)
+        val streamType = dict.getAs<PdfName>(PdfName.Type)?.name
 
-        return PdfRawStream(dict, contents)
+        return if (streamType == "ObjStm") {
+            PdfObjectStreamParser(stream, streamDecoder).parseObjectStream(referencePool)
+        } else {
+            stream
+        }
     }
 
     protected open fun findEndOfStreamFallback(startPos: ByteStream.Position): Int {

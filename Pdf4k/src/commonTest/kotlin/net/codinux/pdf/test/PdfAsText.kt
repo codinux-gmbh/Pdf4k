@@ -78,6 +78,40 @@ object PdfAsText {
     """.trimIndent()
 
 
+    // note: new lines have been added for better readability, they are not in the original object.
+    // The (here) first line are /N pairs of numbers (in this case 29) with the meaning: <object number> <byte offset in this stream>
+    val DecodedObjStream = """
+        30 0 31 63 33 175 35 207 36 234 37 450 38 615 39 812 41 1009 42 1020 43 1037 44 1074 45 1100 48 1204 50 1208 51 1335 52 1355 53 1360 54 1365 56 1456 58 1951 59 1955 60 2155 62 2160 63 2165 66 2377 67 2404 68 2527 70 2542 
+        <</Type /Pages /Count 2 /Kids [38 0 R 39 0 R ] /Marked true >> 
+        <</Type /OutputIntent /S /GTS_PDFA1 /OutputConditionIdentifier (A98C) /Info (A98C) /DestOutputProfile 40 0 R >> 
+        <</Nums [0 41 0 R 1 42 0 R ] >> 
+        <</EmbeddedFiles 43 0 R >> 
+        <</Type /Filespec /F (factur-x.xml) /AFRelationship /Alternative /UF (factur-x.xml) /Desc (Invoice metadata conforming to ZUGFeRD standard \(http://www.ferd-net.de/front_content.php?idcat=231&lang=4\)) /EF 44 0 R >> 
+        <</Producer (danki die geile Sau \(via mustangproject.org 2.14.2\)) /CreationDate (D:20241115003655+01'00') /ModDate (D:20241115003655+01'00') /Creator (ganymed) >> 
+        <</Resources 45 0 R /Type /Page /MediaBox [0 0 595.275 841.889 ] /CropBox [0 0 595.275 841.889 ] /BleedBox [0 0 595.275 841.889 ] /TrimBox [0 0 595.275 841.889 ] /Parent 30 0 R /Contents 46 0 R >> 
+        <</Resources 45 0 R /Type /Page /MediaBox [0 0 595.275 841.889 ] /CropBox [0 0 595.275 841.889 ] /BleedBox [0 0 595.275 841.889 ] /TrimBox [0 0 595.275 841.889 ] /Parent 30 0 R /Contents 47 0 R >> 
+        <</S /D >> 
+        <</S /D /St 2 >> 
+        <</Names [(factur-x.xml) 67 0 R ] >> 
+        <</F 49 0 R /UF 49 0 R >> 
+        <</Font <</F788 50 0 R >> /ProcSet [/PDF /ImageB /ImageC /Text ] /ColorSpace <</DefaultRGB 51 0 R >> >> 
+        243 
+        <</Type /Font /Subtype /Type0 /BaseFont /EAAAAA+FreeSans /Encoding /Identity-H /ToUnicode 55 0 R /DescendantFonts [56 0 R ] >> 
+        [/ICCBased 57 0 R ] 
+        3963 2697 
+        <</Size 6572 /CreationDate (D:20241115003655+01'00') /ModDate (D:20241115003655+01'00') >> 
+        <</Type /Font /BaseFont /EAAAAA+FreeSans /CIDToGIDMap /Identity /Subtype /CIDFontType2 /CIDSystemInfo <</Registry (Adobe) /Ordering (UCS) /Supplement 0 >> /FontDescriptor 59 0 R /DW 0 /W [0 [700 278 333 722 556 278 556 556 556 333 667 722 500 556 556 556 278 278 556 833 222 500 667 556 722 278 722 500 556 556 667 222 556 667 500 667 611 556 556 556 556 778 778 556 500 333 333 611 584 556 556 556 556 556 833 500 1015 278 556 667 611 722 722 722 500 944 278 667 889 278 722 667 278 278 ] ] >> 
+        540 
+        <</Type /FontDescriptor /FontName /EAAAAA+FreeSans /FontBBox [-1166 -469 1518 1050 ] /Flags 33 /CapHeight 729 /Ascent 1050 /Descent -469 /ItalicAngle 0 /StemV 0 /MissingWidth 500 /FontFile2 61 0 R >> 
+        2472 7184 
+        <</Type /OutputIntent /S /GTS_PDFA1 /DestOutputProfile 64 0 R /Info (sRGB IEC61966-2.1) /OutputCondition (sRGB IEC61966-2.1) /OutputConditionIdentifier (sRGB IEC61966-2.1) /RegistryName (http://www.color.org) >> 
+        <</Type /StructTreeRoot >> 
+        <</Type /Filespec /F (factur-x.xml) /UF (factur-x.xml) /Desc (Factur-x invoice) /AFRelationship /Alternative /EF 68 0 R >> 
+        <</F 69 0 R >> 
+        <</Size 6958 /CreationDate (D:20250314034351+01'00') /ModDate (D:20250314034351+01'00') >> 
+    """.trimIndent()
+
+
     val InvoicePdf = """
         %PDF-1.6
         %����

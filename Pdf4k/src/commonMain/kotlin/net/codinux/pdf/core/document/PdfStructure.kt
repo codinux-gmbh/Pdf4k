@@ -31,7 +31,7 @@ open class PdfStructure(
         }
     }
 
-    open fun addIndirectObjects(indirectObjects: List<Pair<PdfRef, PdfObject>>) {
+    open fun addIndirectObjects(indirectObjects: Map<PdfRef, PdfObject>) {
         indirectObjects.forEach { (ref, pdfObject) ->
             addIndirectObject(ref, pdfObject)
         }

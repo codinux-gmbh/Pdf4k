@@ -58,17 +58,21 @@ open class PdfObjectStreamParser(rawStream: PdfRawStream, decoder: StreamDecoder
     protected val firstOffset: Int = dict.getAs<PdfNumber>("First")?.value?.toInt() // TODO: but can also be an indirect object
         ?: throw IllegalStateException("PdfRawStream dictionary needs to contain key /First with a PdfNumber value")
 
-    protected val objectCount: Int = dict.getAs<PdfNumber>("N")?.value?.toInt() // TODO: but can also be an indirect object
+    protected val numberOfContainedObjects: Int = dict.getAs<PdfNumber>("N")?.value?.toInt() // TODO: but can also be an indirect object
             ?: throw IllegalStateException("PdfRawStream dictionary needs to contain key /N with a PdfNumber value")
 
 
-    open fun parseIndirectObjects(referencePool: MutableMap<String, PdfRef>): List<Pair<PdfRef, PdfObject>> {
+    open fun parseObjectStream(referencePool: MutableMap<String, PdfRef>) =
+        PdfObjectStream(dict, numberOfContainedObjects, parseIndirectObjects(referencePool))
+
+    open fun parseIndirectObjects(referencePool: MutableMap<String, PdfRef>): Map<PdfRef, PdfObject> {
         val offsetsAndObjectNumbers = parseOffsetsAndObjectNumbers()
 
-        return offsetsAndObjectNumbers.map { (objectNumber, offset) ->
+        return offsetsAndObjectNumbers.associate { (objectNumber, offset) ->
             bytes.moveTo(firstOffset + offset)
 
             val `object` = parseObject()
+            // "The generation number of an object stream and of any compressed object shall be zero."
             val ref = PdfRef.getOrCreate(referencePool, objectNumber, 0)
 
             Pair(ref, `object`)
@@ -76,7 +80,7 @@ open class PdfObjectStreamParser(rawStream: PdfRawStream, decoder: StreamDecoder
     }
 
     protected open fun parseOffsetsAndObjectNumbers(): List<Pair<Int, Int>> {
-        return (0..<objectCount).map {
+        return (0..<numberOfContainedObjects).map {
             skipWhitespaceAndComments()
             val objectNumber = parseRawInt()
 
