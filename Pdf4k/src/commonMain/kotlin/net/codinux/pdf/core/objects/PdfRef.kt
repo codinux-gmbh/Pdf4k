@@ -28,16 +28,16 @@ open class PdfRef(
         if (other !is PdfRef) return false
 
         if (objectNumber != other.objectNumber) return false
-        if (generationNumber != other.generationNumber) return false
+
+        // we ignore the generation number, there should never be two objects with the same object number but different
+        // generation numbers in a PDF.
+        // that's also senseful for PdfRef to objects in object streams as for these the reference to it states no generation number:
+        // "The generation number of an object stream and of any compressed object shall be zero." (p. 63)
 
         return true
     }
 
-    override fun hashCode(): Int {
-        var result = objectNumber
-        result = 31 * result + generationNumber
-        return result
-    }
+    override fun hashCode(): Int = objectNumber // the same here, we ignore the generation number, see equals()
 
     override fun toString() = tag(objectNumber, generationNumber)
 
