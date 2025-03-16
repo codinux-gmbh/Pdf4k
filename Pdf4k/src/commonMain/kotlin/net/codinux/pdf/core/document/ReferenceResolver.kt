@@ -11,8 +11,6 @@ open class ReferenceResolver(
 
     val referencesToByteOffset: Map<PdfRef, Int> = undeletedCrossReferenceEntries.associate { it.ref to it.offset }
 
-    protected val compressedReferences: List<PdfRef> = undeletedCrossReferenceEntries.filter { it.isCompressed == true }.map { it.ref }
-
     protected val indirectObjects: MutableMap<PdfRef, PdfObject> = structure.getIndirectObjects()
 
 
@@ -72,6 +70,8 @@ open class ReferenceResolver(
 
     open fun lookupStream(ref: PdfRef): PdfRawStream? = lookup(ref) as? PdfRawStream
 
+    open fun lookupObjectStream(ref: PdfRef): PdfObjectStream? = lookup(ref) as? PdfObjectStream
+
     open fun lookup(ref: PdfRef): PdfObject? {
         val resolvedObject = indirectObjects[ref]
         if (resolvedObject != null) {
@@ -79,15 +79,36 @@ open class ReferenceResolver(
         }
 
         val byteOffset = referencesToByteOffset[ref]
-        if (byteOffset == null) {
-            return null
+
+        return if (byteOffset != null) {
+            lookupObjectAtByteOffset(ref, byteOffset)
+        } else {
+            null
         }
+    }
 
-        val isCompressedObject = compressedReferences.contains(ref) // TODO: handle compressed objects
+    protected open fun lookupObjectAtByteOffset(ref: PdfRef, byteOffset: Int): PdfObject? {
+        val refWithMatchingObjectNumber = referencesToByteOffset.entries.first { it.key.objectNumber == ref.objectNumber }.key
 
-        val parsedObject = objectParser.parseObjectAtOffset(byteOffset)
-        indirectObjects[ref] = parsedObject
-        return parsedObject
+        return if (refWithMatchingObjectNumber is PdfRefInStream) { // an object in an object stream, mostly compressed with many other objects
+            val containedInObjectNumber = refWithMatchingObjectNumber.objectNumberOfContainingStream
+            // The generation number of an object stream and of any compressed object shall be zero.
+            val containingObject = lookupObjectStream(PdfRef(containedInObjectNumber, 0))
+
+            if (containingObject != null) {
+                containingObject.containingObjects[ref]
+            } else {
+                null
+            }
+        } else { // un uncompressed object
+            val parsedObject = objectParser.parseObjectAtOffset(byteOffset)
+            indirectObjects[ref] = parsedObject
+            if (parsedObject is PdfObjectStream) {
+                indirectObjects.putAll(parsedObject.containingObjects)
+            }
+
+            parsedObject
+        }
     }
 
 }

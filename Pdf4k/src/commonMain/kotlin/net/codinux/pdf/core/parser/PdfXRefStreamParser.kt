@@ -61,13 +61,16 @@ open class PdfXRefStreamParser(protected val rawStream: PdfRawStream, protected 
                 val type = getValueOfByteWidth(bytes, typeFieldWidth, 1) // When the `type` field width is absent, it defaults to 1
                 val offset = getValueOfByteWidth(bytes, offsetFieldWidth, 0) // for type == 0 actually "The object number of the next free object" and for type == 2 "The object number of the object stream in which this object is stored"
                 val generationNumber = getValueOfByteWidth(bytes, genFieldWidth, 0) // for type == 2: "The index of this object within the object stream. This index value will be between zero and the value of N minus 1 from the associated object stream dictionary". The generation number of the object stream shall be implicitly 0
+
                 val isDeleted = type == 0
                 val isCompressed = type == 2
+                val objectNumber = firstObjectNumber + objectIndex
 
                 if (isDeleted) {
                     null // skip deleted entries
+                } else if (isCompressed) {
+                    PdfCrossRefEntry(PdfRefInStream(objectNumber, offset, generationNumber), offset, isDeleted, isCompressed)
                 } else {
-                    val objectNumber = firstObjectNumber + objectIndex
                     PdfCrossRefEntry(PdfRef.getOrCreate(referencePool, objectNumber, generationNumber), offset, isDeleted, isCompressed)
                 }
 
