@@ -16,7 +16,7 @@ open class PdfDataMapper(
 
     open fun getEmbeddedFiles(catalog: PdfDict): List<EmbeddedFile> = try {
         // the default is storing embedded files in the AssociatedFiles array at document level
-        val associatedFiles = resolver.lookupArray(catalog.get(PdfName.AF))
+        val associatedFiles: PdfArray? = resolver.lookup(catalog.get(PdfName.AF))
         if (associatedFiles != null) {
             readEmbeddedFilesArray(associatedFiles)
         } else { // additionally and only sometimes (which is not PDF/A-3 conformant) they are stored in Names -> EmbeddedFiles -> Names dictionary entries
@@ -33,14 +33,14 @@ open class PdfDataMapper(
     }
 
     protected open fun readEmbeddedFilesDict(embeddedFilesDict: PdfDict): List<EmbeddedFile> {
-        val embeddedFilesNames = resolver.lookupArray(embeddedFilesDict.get(PdfName.Names))
+        val embeddedFilesNames: PdfArray? = resolver.lookup(embeddedFilesDict.get(PdfName.Names))
 
         return if (embeddedFilesNames != null) {
             readEmbeddedFilesArray(embeddedFilesNames)
         } else {
             // don't know how often this is the case, but Factur-X specification says sometimes embedded files are not directly in
             // EmbeddedFiles -> Names dict but indirectly in EmbeddedFiles -> Kids -> Names
-            val kids = resolver.lookupArray(embeddedFilesDict.get("Kids"))
+            val kids: PdfArray? = resolver.lookup(embeddedFilesDict.get("Kids"))
             kids?.items.orEmpty().filterIsInstance<PdfDict>().flatMap { readEmbeddedFilesDict(it) }
         }
     }
@@ -57,11 +57,13 @@ open class PdfDataMapper(
 
     protected open fun mapEmbeddedFile(fileSpecification: PdfDict): EmbeddedFile? {
         val embeddedFile = resolver.lookupDict(fileSpecification.get("EF"))
-        val embeddedFileStream = resolver.lookupStream(embeddedFile?.get("F") ?: embeddedFile?.get("UF"))
+        val embeddedFileStream: PdfRawStream? = resolver.lookup(embeddedFile?.get("F") ?: embeddedFile?.get("UF"))
 
         return if (embeddedFile == null || embeddedFileStream == null) {
             null
         } else {
+            val isUrl = resolver.lookup<PdfName>(fileSpecification.get("FS"))?.name == "URL" // if /FS has the value /URL, then /F is a URL. But should be rarely the case
+
             val filename = decodeText(fileSpecification, "F")
             val unicodeFilename = decodeText(fileSpecification, "UF")
             val description = decodeText(fileSpecification, "Desc")
@@ -70,17 +72,16 @@ open class PdfDataMapper(
             val dict = embeddedFileStream.dict
             val params = resolver.lookupDict(dict.get("Params"))
             val mimeType = decodeText(dict, "Subtype")
-            val md5Hash = resolver.lookupString(params?.get("CheckSum"))?.value
+            val md5Hash = resolver.lookup<PdfString>(params?.get("CheckSum"))?.value
             val creationDate = decodeDate(params, PdfName.CreationDate)
             val modificationDate = decodeDate(params, PdfName.ModDate)
 
             val isCompressed = embeddedFileStream.dict.get(PdfName.Filter) != null
             // dict -> /Length: The number of bytes in this stream. If the stream is compressed then this is the number of compressed bytes
-            val streamLength = (resolver.lookupNumber(dict.get(PdfName.Length))
-                ?: resolver.lookupNumber(dict.get(PdfName.Size))) // 'Length' is correct, some use 'Size'
+            val streamLength = resolver.lookup<PdfNumber>(dict.get(PdfName.Length) ?: dict.get(PdfName.Size)) // 'Length' is correct, some use 'Size'
                 ?.value?.toInt()
             // /Params -> /Size: (Optional) The size of the uncompressed embedded file, in bytes
-            val size = if (isCompressed) resolver.lookupNumber(params?.get(PdfName.Size))?.value?.toInt() else streamLength
+            val size = if (isCompressed) resolver.lookup<PdfNumber>(params?.get(PdfName.Size))?.value?.toInt() else streamLength
 
             EmbeddedFile(
                 unicodeFilename ?: filename ?: "", // A PDF reader shall use the value of the UF key, when present, instead of the F key.

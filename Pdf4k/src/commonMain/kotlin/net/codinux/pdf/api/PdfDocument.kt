@@ -55,7 +55,7 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
         // if later than the version specified in the file’s header (see 7.5.2, "File header"). If the header specifies
         // a later version, or if this entry is absent, the document shall conform to the version specified in the header.
         // This entry enables a PDF processor to update the version using an incremental update; see 7.5.6, "Incremental updates".
-        val catalogPdfVersion = referenceResolver.lookupName(catalog.get(PdfName.Version))?.name?.toFloat()
+        val catalogPdfVersion = referenceResolver.lookup<PdfName>(catalog.get(PdfName.Version))?.name?.toFloat()
         this.pdfVersion = if (catalogPdfVersion != null && catalogPdfVersion > headerPdfVersion) catalogPdfVersion else headerPdfVersion
 
         lowLevelDetails = PdfLowLevelDetails(structure, undeletedXRefEntries, headerPdfVersion, catalogPdfVersion)
@@ -64,17 +64,7 @@ open class PdfDocument(structure: PdfStructure, objectParser: PdfObjectParser) {
 
     open fun lookupDict(obj: PdfObject?) = referenceResolver.lookupDict(obj)
 
-    open fun lookupArray(obj: PdfObject?) = referenceResolver.lookupArray(obj)
-
-    open fun lookupNumber(obj: PdfObject?) = referenceResolver.lookupNumber(obj)
-
-    open fun lookupString(obj: PdfObject?) = referenceResolver.lookupString(obj)
-
-    open fun lookupHexString(obj: PdfObject?) = referenceResolver.lookupHexString(obj)
-
-    open fun lookupName(obj: PdfObject?) = referenceResolver.lookupName(obj)
-
-    open fun lookupStream(obj: PdfObject?) = referenceResolver.lookupStream(obj)
+    open fun <T> lookup(obj: PdfObject?): T? = referenceResolver.lookup(obj)
 
     protected open fun extractEmbeddedFiles() = dataMapper.getEmbeddedFiles(catalog)
 
