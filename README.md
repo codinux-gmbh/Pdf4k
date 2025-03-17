@@ -9,7 +9,8 @@ Not supposed to be used in production, has only very limited functionality:
 - Get embedded files (e.g. to extract e-invoices)
 
 
-Started as a clone of the very well structured and written [pdf-lib](https://github.com/Hopding/pdf-lib). So give them a star if you like this library.
+Started as a clone of the very well-structured and written [pdf-lib](https://github.com/Hopding/pdf-lib). So give them a star if you like this library.
+For developers coming from pdf-lib see [Changes to pdf-lib](./docs/Changes%20to%20pdf-lib.md) to see with which changes your existing code can be reused.
 
 
 ## Setup
@@ -27,7 +28,7 @@ For examples see [examples](./examples) folder.
 
 ### Read PDF
 
-For code see [ReadPdfExamples](./examples/src/commonMain/kotlin/net/codinux/pdf/examples/ReadPdfExamples.kt).
+The code to below examples can be found in [ReadPdfExamples](./examples/src/commonMain/kotlin/net/codinux/pdf/examples/ReadPdfExamples.kt).
 
 ```kotlin
 val pdfBytes = PdfTestData.EmptyPdf_v1_7 // get bytes of PDF file
