@@ -1,7 +1,7 @@
 
 allprojects {
     group = "net.codinux.pdf"
-    version = "0.5.0"
+    version = "0.5.1-SNAPSHOT"
 
 
     ext["sourceCodeRepositoryBaseUrl"] = "github.com/codinux-gmbh/Pdf4k"
