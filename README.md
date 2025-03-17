@@ -50,3 +50,12 @@ embeddedFiles.forEachIndexed { index, file ->
             "${file.size ?: file.fileContent.size} bytes") // fileContent gets decompressed lazily on first call
 }
 ```
+
+
+## Development
+
+- Checkout code
+- Init Git submodules:
+```shell
+git submodule init && git submodule update
+```
